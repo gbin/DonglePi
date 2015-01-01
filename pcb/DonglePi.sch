@@ -2842,7 +2842,13 @@ Source: www.st.com, BAT60J.pdf</description>
 <variantdefs>
 </variantdefs>
 <classes>
-<class number="0" name="default" width="0" drill="0">
+<class number="0" name="default" width="0.254" drill="0">
+</class>
+<class number="1" name="3VPower" width="0.3048" drill="0">
+</class>
+<class number="2" name="5V" width="0.3048" drill="0">
+</class>
+<class number="3" name="Ground" width="0.3048" drill="0">
 </class>
 </classes>
 <parts>
@@ -2863,7 +2869,7 @@ Source: www.st.com, BAT60J.pdf</description>
 <part name="GND10" library="supply1" deviceset="GND" device=""/>
 <part name="SWDIO_DBG" library="wirepad" deviceset="1,6/0,8" device="" value="_"/>
 <part name="SWCLK_DBG" library="wirepad" deviceset="1,6/0,8" device="" value="_"/>
-<part name="F1" library="gbin" deviceset="1206L" device=""/>
+<part name="FUSE" library="gbin" deviceset="1206L" device=""/>
 <part name="FERRITEBEAD" library="inductors" deviceset="BLM15H" device="" technology="B121SN1"/>
 <part name="+3V3" library="supply1" deviceset="+3V3" device=""/>
 <part name="+3V4" library="supply1" deviceset="+3V3" device=""/>
@@ -2879,9 +2885,6 @@ Source: www.st.com, BAT60J.pdf</description>
 <part name="R2" library="eagle-ltspice" deviceset="R" device="R0201" value="500"/>
 <part name="LED2" library="eagle-ltspice" deviceset="LED_E" device="SML0603" value="_"/>
 <part name="GND1" library="supply1" deviceset="GND" device=""/>
-<part name="PA18_GPIO" library="wirepad" deviceset="1,6/0,8" device="" value="_"/>
-<part name="PA19_GPIO" library="wirepad" deviceset="1,6/0,8" device="" value="_"/>
-<part name="PA27_GPIO" library="wirepad" deviceset="1,6/0,8" device="" value="_"/>
 </parts>
 <sheets>
 <sheet>
@@ -2905,7 +2908,7 @@ Source: www.st.com, BAT60J.pdf</description>
 <instance part="GND10" gate="1" x="81.28" y="53.34" rot="R270"/>
 <instance part="SWDIO_DBG" gate="P" x="60.96" y="-10.16" rot="R180"/>
 <instance part="SWCLK_DBG" gate="P" x="60.96" y="-5.08" rot="R180"/>
-<instance part="F1" gate="G$1" x="101.6" y="15.24"/>
+<instance part="FUSE" gate="G$1" x="101.6" y="15.24"/>
 <instance part="FERRITEBEAD" gate="G$1" x="-25.4" y="58.42" rot="R90"/>
 <instance part="+3V3" gate="G$1" x="-25.4" y="78.74"/>
 <instance part="+3V4" gate="G$1" x="-27.94" y="-17.78" rot="R90"/>
@@ -2921,14 +2924,11 @@ Source: www.st.com, BAT60J.pdf</description>
 <instance part="R2" gate="G$1" x="45.72" y="63.5"/>
 <instance part="LED2" gate="G$1" x="53.34" y="63.5" rot="R90"/>
 <instance part="GND1" gate="1" x="60.96" y="63.5" rot="R90"/>
-<instance part="PA18_GPIO" gate="P" x="60.96" y="25.4" rot="R180"/>
-<instance part="PA19_GPIO" gate="P" x="60.96" y="20.32" rot="R180"/>
-<instance part="PA27_GPIO" gate="P" x="60.96" y="15.24" rot="R180"/>
 </instances>
 <busses>
 </busses>
 <nets>
-<net name="+3V3" class="0">
+<net name="+3V3" class="1">
 <segment>
 <pinref part="+3V1" gate="G$1" pin="+3V3"/>
 <pinref part="REGULATOR" gate="G$1" pin="VO"/>
@@ -2960,7 +2960,7 @@ Source: www.st.com, BAT60J.pdf</description>
 <junction x="-22.86" y="-17.78"/>
 </segment>
 </net>
-<net name="GND" class="0">
+<net name="GND" class="3">
 <segment>
 <pinref part="REGULATOR" gate="G$1" pin="GND"/>
 <pinref part="GND3" gate="1" pin="GND"/>
@@ -3042,7 +3042,7 @@ Source: www.st.com, BAT60J.pdf</description>
 <pinref part="GND1" gate="1" pin="GND"/>
 </segment>
 </net>
-<net name="+5V" class="0">
+<net name="+5V" class="2">
 <segment>
 <pinref part="P+2" gate="1" pin="+5V"/>
 <wire x1="86.36" y1="15.24" x2="88.9" y2="15.24" width="0.1524" layer="91"/>
@@ -3064,10 +3064,10 @@ Source: www.st.com, BAT60J.pdf</description>
 <wire x1="93.98" y1="-5.08" x2="81.28" y2="-5.08" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="N$2" class="0">
+<net name="N$2" class="2">
 <segment>
 <wire x1="93.98" y1="15.24" x2="96.52" y2="15.24" width="0.1524" layer="91"/>
-<pinref part="F1" gate="G$1" pin="1"/>
+<pinref part="FUSE" gate="G$1" pin="1"/>
 <pinref part="D1" gate="G$1" pin="C"/>
 </segment>
 </net>
@@ -3261,7 +3261,6 @@ Source: www.st.com, BAT60J.pdf</description>
 <net name="PA18" class="0">
 <segment>
 <pinref part="MCU" gate="SAMD21E" pin="PA18"/>
-<pinref part="PA18_GPIO" gate="P" pin="P"/>
 <wire x1="30.48" y1="25.4" x2="58.42" y2="25.4" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -3270,7 +3269,6 @@ Source: www.st.com, BAT60J.pdf</description>
 <pinref part="MCU" gate="SAMD21E" pin="PA19"/>
 <wire x1="30.48" y1="22.86" x2="48.26" y2="22.86" width="0.1524" layer="91"/>
 <wire x1="48.26" y1="22.86" x2="48.26" y2="20.32" width="0.1524" layer="91"/>
-<pinref part="PA19_GPIO" gate="P" pin="P"/>
 <wire x1="48.26" y1="20.32" x2="58.42" y2="20.32" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -3327,7 +3325,6 @@ Source: www.st.com, BAT60J.pdf</description>
 <pinref part="MCU" gate="SAMD21E" pin="PA27"/>
 <wire x1="30.48" y1="10.16" x2="45.72" y2="10.16" width="0.1524" layer="91"/>
 <wire x1="45.72" y1="10.16" x2="45.72" y2="15.24" width="0.1524" layer="91"/>
-<pinref part="PA27_GPIO" gate="P" pin="P"/>
 <wire x1="45.72" y1="15.24" x2="58.42" y2="15.24" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -3357,7 +3354,7 @@ Source: www.st.com, BAT60J.pdf</description>
 <net name="N$1" class="0">
 <segment>
 <pinref part="REGULATOR" gate="G$1" pin="VI"/>
-<pinref part="F1" gate="G$1" pin="2"/>
+<pinref part="FUSE" gate="G$1" pin="2"/>
 </segment>
 </net>
 <net name="N$5" class="0">
