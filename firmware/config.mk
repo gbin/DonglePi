@@ -12,22 +12,33 @@ PART = samd21e17a
 TARGET_FLASH = flash.elf
 TARGET_SRAM = donglepi_sram.elf
 
+#			 lz4/lz4.c \
 # List of C source files.
+#     common/services/usb/class/cdc/device/udi_cdc.c     
 CSRCS = \
-       common/utils/interrupt/interrupt_sam_nvic.c        \
-       donglepi.c \
-			 lz4/lz4.c \
-       sam0/drivers/extint/extint.c                       \
-       sam0/drivers/extint/extint_callback.c              \
-       sam0/drivers/port/port.c                           \
-       sam0/drivers/system/clock/clock_samd21_r21/clock.c \
-       sam0/drivers/system/clock/clock_samd21_r21/gclk.c  \
-       sam0/drivers/system/interrupt/system_interrupt.c   \
-       sam0/drivers/system/pinmux/pinmux.c                \
-       sam0/drivers/system/system.c                       \
+       common/services/sleepmgr/samd/sleepmgr.c            \
+       common/services/usb/class/cdc/device/udi_cdc.c  \
+       common/services/usb/class/cdc/device/udi_cdc_desc.c \
+       common/services/usb/udc/udc.c                       \
+       common/utils/interrupt/interrupt_sam_nvic.c         \
+       sam0/drivers/extint/extint.c                        \
+       sam0/drivers/extint/extint_callback.c               \
+       sam0/drivers/port/port.c                            \
+       sam0/drivers/sercom/usart/usart.c \
+       sam0/drivers/sercom/sercom.c    \
+       sam0/drivers/system/clock/clock_samd21_r21/clock.c  \
+       sam0/drivers/system/clock/clock_samd21_r21/gclk.c   \
+       sam0/drivers/system/interrupt/system_interrupt.c    \
+       sam0/drivers/system/pinmux/pinmux.c                 \
+       sam0/drivers/system/system.c                        \
+       sam0/drivers/usb/stack_interface/usb_device_udd.c   \
+       sam0/drivers/usb/stack_interface/usb_dual.c         \
+       sam0/drivers/usb/usb.c                              \
        sam0/utils/cmsis/samd21/source/gcc/startup_samd21.c \
-       sam0/utils/cmsis/samd21/source/system_samd21.c     \
-       sam0/utils/syscalls/gcc/syscalls.c
+       sam0/utils/cmsis/samd21/source/system_samd21.c      \
+       sam0/utils/syscalls/gcc/syscalls.c                  \
+       donglepi.c                                          \
+			 uart.c
 
 # List of assembler source files.
 ASSRCS =
@@ -35,25 +46,33 @@ ASSRCS =
 # List of include paths.
 INC_PATH = \
        common/boards                                      \
+       common/services/sleepmgr                           \
+       common/services/usb                                \
+       common/services/usb/class/cdc                      \
+       common/services/usb/class/cdc/device               \
+       common/services/usb/udc                            \
        common/utils                                       \
        sam0/boards                                        \
        sam0/boards/dummy                                  \
        sam0/drivers/extint                                \
+       sam0/drivers/sercom    \
        sam0/drivers/port                                  \
+       sam0/drivers/sercom/usart \
        sam0/drivers/system                                \
        sam0/drivers/system/clock                          \
        sam0/drivers/system/clock/clock_samd21_r21         \
        sam0/drivers/system/interrupt                      \
        sam0/drivers/system/interrupt/system_interrupt_samd21 \
        sam0/drivers/system/pinmux                         \
+       sam0/drivers/usb \
+       sam0/drivers/usb/stack_interface \
        sam0/utils                                         \
        sam0/utils/cmsis/samd21/include                    \
        sam0/utils/cmsis/samd21/source                     \
        sam0/utils/header_files                            \
        sam0/utils/preprocessor                            \
        thirdparty/CMSIS/Include                           \
-       thirdparty/CMSIS/Lib/GCC \
-       sam0/applications/led_toggle/samd21_xplained_pro/gcc
+       thirdparty/CMSIS/Lib/GCC
 
 # Additional search paths for libraries.
 LIB_PATH = thirdparty/CMSIS/Lib/GCC
@@ -100,7 +119,8 @@ CFLAGS = -I.
 #   EXT_BOARD  Optional extension board in use, see boards/board.h for a list.
 CPPFLAGS = \
        -D ARM_MATH_CM0=true                               \
-       -D BOARD=DUMMY_BOARD                       \
+       -D BOARD=DUMMY_BOARD \
+			 -D USART_CALLBACK_MODE=false \
        -D EXTINT_CALLBACK_MODE=true                       \
        -D __SAMD21E17A__
 

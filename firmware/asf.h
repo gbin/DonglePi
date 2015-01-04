@@ -21,6 +21,12 @@
 // From module: Part identification macros
 #include <parts.h>
 
+#include <usb_dual.h>
+#include <sercom.h>
+// #include <sercom_interrupt.h>
+#include <usart.h>
+// #include <usart_interrupt.h>
+
 // From module: SYSTEM - Clock Management for SAMD21
 #include <clock.h>
 #include <gclk.h>
@@ -34,4 +40,10 @@
 // From module: SYSTEM - Interrupt Driver
 #include <system_interrupt.h>
 
+#include <samd/sleepmgr.h>
+#include <sleepmgr.h>
+#include <usb_protocol_cdc.h>
+#include <udi_cdc.h>
+#include <udc.h>
+#include <udd.h>
 #endif // ASF_H
