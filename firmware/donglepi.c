@@ -3,11 +3,9 @@
 #include "board.h"
 #include "ui.h"
 #include "uart.h"
+#include "dbg.h"
 
 static volatile bool main_b_cdc_enable = false;
-
-struct usart_module usart_module;
-struct usart_config usart_conf;
 
 
 /* void SysTick_Handler(void) {
@@ -50,96 +48,86 @@ static void configure_pins(void) {
   
  }
 
-static void configure_usart(void) {
-  usart_get_config_defaults(&usart_conf);
-  usart_conf.stopbits = USART_STOPBITS_1;
-  usart_conf.parity = USART_PARITY_NONE;
-  usart_conf.character_size = USART_CHARACTER_SIZE_8BIT;
-
-	usart_conf.baudrate = 115200; 
-	usart_conf.mux_setting = USART_RX_1_TX_0_XCK_1;
-	usart_conf.pinmux_pad0 = PINMUX_PA16D_SERCOM3_PAD0;
-	usart_conf.pinmux_pad1 = PINMUX_PA17D_SERCOM3_PAD1;
-	usart_conf.pinmux_pad2 = PINMUX_UNUSED;
-	usart_conf.pinmux_pad3 = PINMUX_UNUSED;
-  on1();
-	while (usart_init(&usart_module, SERCOM3, &usart_conf) != STATUS_OK) {
-  }
-  off1();
-  off2();
-  on2();
-  usart_enable(&usart_module);
-}
-
 
 int main(void)
 {
- 	// irq_initialize_vectors();
-	// cpu_irq_enable();
-	// sleepmgr_init();
   system_init();
-  configure_usart();
+  log_init(); 
+ 	l("init vectors");
+  irq_initialize_vectors();
+ 	l("irq enable");
+	cpu_irq_enable();
+ 	l("sleep mgr start");
+	sleepmgr_init();
+ 	l("configure_pins");
   configure_pins();
+ 	l("ui_init");
   ui_init();
-  uint8_t string[] = "DonglePi debug console\n";
 
-	// ui_powerdown();
+ 	l("ui_powerdown");
+	ui_powerdown();
 
 	// Start USB stack to authorize VBus monitoring
-	// udc_start();
+ 	l("udc_start");
+	udc_start();
 
 
   // configure_systick_handler();
   // system_interrupt_enable_global();
-  on2();
-  on1();
-  usart_write_buffer_wait(&usart_module, string, sizeof(string));
-
   while (true) {
-   // sleepmgr_enter_sleep();
+    sleepmgr_enter_sleep();
   }
 }
 
 void main_suspend_action(void) {
-	ui_powerdown();
+ 	l("main_suspend_action");
+	off1();
+  ui_powerdown();
 }
 
 void main_resume_action(void) {
-	ui_wakeup();
+ 	l("main_resume_action");
+	on1();
+  ui_wakeup();
 }
 
 void main_sof_action(void)
 {
-	if (!main_b_cdc_enable)
+ 	if (!main_b_cdc_enable)
 		return;
-	// ui_process(udd_get_frame_number());
+	// l("Frame number %d", udd_get_frame_number());
 }
 
 #ifdef USB_DEVICE_LPM_SUPPORT
 void main_suspend_lpm_action(void)
 {
+ 	l("main_suspend_lpm_action");
 	ui_powerdown();
 }
 
 void main_remotewakeup_lpm_disable(void)
 {
+ 	l("main_remotewakeup_lpm_disable");
 	ui_wakeup_disable();
 }
 
 void main_remotewakeup_lpm_enable(void)
 {
+ 	l("main_remotewakeup_lpm_enable");
 	ui_wakeup_enable();
 }
 #endif
 
 bool main_cdc_enable(uint8_t port)
 {
+ 	l("main_cdc_enable %d", port);
 	main_b_cdc_enable = true;
 	return true;
 }
 
 void main_cdc_disable(uint8_t port)
 {
+ 	l("main_cdc_disable %d", port);
 	main_b_cdc_enable = false;
 }
 
@@ -181,6 +169,15 @@ void ui_init(void) {
 void ui_wakeup(void)
 {
   // port_pin_set_output_level(PIN_PA28, 1);
+}
+
+void cdc_config(uint8_t port, usb_cdc_line_coding_t * cfg) {
+ 	l("cdc_config [%d]", port);
+}
+
+void cdc_rx_notify(uint8_t port) {
+ 	l("cdc_rx_notify [%d]", port);
+ 	l("data [%s]", udi_cdc_getc());
 }
 
 /* compression test 

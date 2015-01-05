@@ -38,6 +38,7 @@ CSRCS = \
        sam0/utils/cmsis/samd21/source/system_samd21.c      \
        sam0/utils/syscalls/gcc/syscalls.c                  \
        donglepi.c                                          \
+			 dbg.c\
 			 uart.c
 
 # List of assembler source files.
