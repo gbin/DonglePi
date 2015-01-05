@@ -1,0 +1,4 @@
+message DonglePiMessage {
+    required int32 GPIO_mask = 1;
+}
+

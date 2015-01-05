@@ -1,0 +1,3 @@
+[submodule "firmware/nanopb"]
+	path = firmware/nanopb
+	url = https://code.google.com/p/nanopb/

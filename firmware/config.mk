@@ -36,6 +36,9 @@ CSRCS = \
        sam0/utils/cmsis/samd21/source/gcc/startup_samd21.c \
        sam0/utils/cmsis/samd21/source/system_samd21.c      \
        sam0/utils/syscalls/gcc/syscalls.c                  \
+       nanopb/pb_encode.c																	 \
+       nanopb/pb_decode.c																	 \
+       nanopb/pb_common.c																	 \
        donglepi.c                                          \
 			 dbg.c\
 			 uart.c
@@ -73,7 +76,8 @@ INC_PATH = \
        common/services/usb/udc                            \
        common/utils                                       \
        thirdparty/CMSIS/Include                           \
-       thirdparty/CMSIS/Lib/GCC
+       thirdparty/CMSIS/Lib/GCC                           \
+			 nanopb
 
 
 # Additional search paths for libraries.
@@ -131,5 +135,5 @@ CPPFLAGS = \
 LDFLAGS = -Wl,--section-start=.text=0x4000
 
 # Pre- and post-build commands
-PREBUILD_CMD =
+PREBUILD_CMD = make -C protocol
 POSTBUILD_CMD =
