@@ -3,7 +3,11 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-void log_init(void); 
-
-void l(const char * format, ... ); 
+void log_init(void);
+void l(const char * format, ... );
+void on1(void);
+void off1(void);
+void on2(void);
+void off2(void);
+bool get_button(void);
 #endif

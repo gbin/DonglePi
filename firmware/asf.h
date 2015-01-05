@@ -22,6 +22,7 @@
 #include <parts.h>
 
 #include <usb_dual.h>
+#include <usb.h>
 #include <sercom.h>
 // #include <sercom_interrupt.h>
 #include <usart.h>

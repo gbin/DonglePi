@@ -14,7 +14,6 @@ TARGET_SRAM = donglepi_sram.elf
 
 #			 lz4/lz4.c \
 # List of C source files.
-#     common/services/usb/class/cdc/device/udi_cdc.c     
 CSRCS = \
        common/services/sleepmgr/samd/sleepmgr.c            \
        common/services/usb/class/cdc/device/udi_cdc.c  \
@@ -33,7 +32,7 @@ CSRCS = \
        sam0/drivers/system/system.c                        \
        sam0/drivers/usb/stack_interface/usb_device_udd.c   \
        sam0/drivers/usb/stack_interface/usb_dual.c         \
-       sam0/drivers/usb/usb.c                              \
+			 sam0/drivers/usb/usb.c                              \
        sam0/utils/cmsis/samd21/source/gcc/startup_samd21.c \
        sam0/utils/cmsis/samd21/source/system_samd21.c      \
        sam0/utils/syscalls/gcc/syscalls.c                  \
@@ -41,18 +40,14 @@ CSRCS = \
 			 dbg.c\
 			 uart.c
 
+
 # List of assembler source files.
 ASSRCS =
 
 # List of include paths.
 INC_PATH = \
-       common/boards                                      \
-       common/services/sleepmgr                           \
-       common/services/usb                                \
-       common/services/usb/class/cdc                      \
-       common/services/usb/class/cdc/device               \
-       common/services/usb/udc                            \
-       common/utils                                       \
+       sam0/utils/cmsis/samd21/include                    \
+       sam0/utils/cmsis/samd21/source                     \
        sam0/boards                                        \
        sam0/boards/dummy                                  \
        sam0/drivers/extint                                \
@@ -68,12 +63,18 @@ INC_PATH = \
        sam0/drivers/usb \
        sam0/drivers/usb/stack_interface \
        sam0/utils                                         \
-       sam0/utils/cmsis/samd21/include                    \
-       sam0/utils/cmsis/samd21/source                     \
        sam0/utils/header_files                            \
        sam0/utils/preprocessor                            \
+       common/boards                                      \
+       common/services/sleepmgr                           \
+       common/services/usb                                \
+       common/services/usb/class/cdc                      \
+       common/services/usb/class/cdc/device               \
+       common/services/usb/udc                            \
+       common/utils                                       \
        thirdparty/CMSIS/Include                           \
        thirdparty/CMSIS/Lib/GCC
+
 
 # Additional search paths for libraries.
 LIB_PATH = thirdparty/CMSIS/Lib/GCC
