@@ -1,4 +1,61 @@
-message DonglePiMessage {
-    required int32 GPIO_mask = 1;
+message DonglePiData {
+  message GPIO {
+    required uint32 mask = 1;
+    required uint32 values = 2;
+  }
+  optional GPIO gpio = 1;
+  optional bytes uart = 2;
+  optional bytes spi = 3;
+  optional bytes i2c = 4;
 }
 
+message Transport {
+  required uint64 message_length = 1;
+}
+
+message DonglePiRequest {
+  message Config {
+    message GPIO {
+      message Pin {
+         enum Direction {
+           IN = 0;
+           OUT = 1;
+         }
+         enum Pull {
+           OFF = 0;
+           UP = 1;
+           DOWN = 2;
+         }
+         required uint32 number = 1;
+         required Direction direction = 2;
+         optional Pull pull = 3 [default = OFF];
+      }
+      repeated Pin pins = 1;
+    }
+    optional GPIO gpio = 1;
+    optional bool uart_on = 2;
+    optional bool spi_on = 3;
+    optional bool i2c_on = 4;
+  }
+  required uint32 message_nb = 1;
+  optional DonglePiData data = 2;
+  optional Config config = 16;
+}
+
+message DonglePiResponse {
+  message Error {
+    enum Type {
+      CONFIG = 0;
+      GPIO = 1;
+      UART = 2;
+      I2C = 3;
+      SPI = 4;
+      OTHER = 15;
+    }
+    required Type type = 1;
+    optional string debug_info = 16;
+  }
+  required uint32 message_nb = 1;
+  optional DonglePiData data = 2;
+  optional Error error = 16;
+}
