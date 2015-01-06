@@ -1,1 +1,12 @@
 pcb/*.?#?
+firmware/protocol/donglepi.pb.c
+firmware/protocol/donglepi.pb.h
+firmware/**/*.d
+firmware/**/*.o
+firmware/**/*.hex
+firmware/*.bin
+firmware/*.elf
+firmware/*.lss
+firmware/*.map
+firmware/*.sym
+**/*.pyc
