@@ -1,4 +1,7 @@
 #include <asf.h>
+#include <pb_encode.h>
+#include <pb_decode.h>
+#include "protocol/donglepi.pb.h"
 #include "conf_usb.h"
 #include "board.h"
 #include "ui.h"
@@ -152,10 +155,38 @@ void cdc_config(uint8_t port, usb_cdc_line_coding_t * cfg) {
   l("cdc_config [%d]", port);
 }
 
+#define USB_BUFFER_SIZE 1024
 void cdc_rx_notify(uint8_t port) {
-  // ui_com_rx_start();
   l("cdc_rx_notify [%d]", port);
-  l("data [%s]", udi_cdc_getc());
+  static uint8_t rx_buffer[USB_BUFFER_SIZE];
+  static uint16_t offset = 0;
+
+  offset = USB_BUFFER_SIZE - udi_cdc_read_buf(rx_buffer + offset, USB_BUFFER_SIZE - offset);  
+  if (offset < 2) {
+     l("not enough data for a message yet");
+     return; // this is not even enough for a count.
+  }
+
+  l("create stream");
+  pb_istream_t istream = pb_istream_from_buffer(rx_buffer, USB_BUFFER_SIZE - offset);
+  l("create message");
+  DonglePiRequest request;
+  if (!pb_decode_delimited(&istream, DonglePiRequest_fields, &request)) {
+    l("failed to decode the size of the packet, wait for more data");
+    return;
+  }
+
+  l("Request #%d received", request.message_nb);
+  static uint8_t tx_buffer[USB_BUFFER_SIZE];
+  pb_ostream_t ostream = pb_ostream_from_buffer(tx_buffer, 0);
+  
+  DonglePiResponse response;
+  response.message_nb = request.message_nb;
+  l("Create response for #%d", request.message_nb);
+  pb_encode_delimited(&ostream, DonglePiResponse_fields, &response);
+  l("Write response");
+  uint32_t wrote = udi_cdc_write_buf(tx_buffer, ostream.bytes_written);
+  l("Done. wrote %d bytes", wrote);
 }
 
 /* compression test 

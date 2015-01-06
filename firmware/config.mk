@@ -39,6 +39,7 @@ CSRCS = \
        nanopb/pb_encode.c																	 \
        nanopb/pb_decode.c																	 \
        nanopb/pb_common.c																	 \
+			 protocol/donglepi.pb.c\
        donglepi.c                                          \
 			 dbg.c\
 			 uart.c
@@ -76,8 +77,7 @@ INC_PATH = \
        common/services/usb/udc                            \
        common/utils                                       \
        thirdparty/CMSIS/Include                           \
-       thirdparty/CMSIS/Lib/GCC                           \
-			 nanopb
+       thirdparty/CMSIS/Lib/GCC                           
 
 
 # Additional search paths for libraries.
@@ -112,7 +112,7 @@ ARFLAGS =
 ASFLAGS =
 
 # Extra flags to use when compiling.
-CFLAGS = -I.
+CFLAGS = -I. -Inanopb 
 #
 # Extra flags to use when preprocessing.
 #
