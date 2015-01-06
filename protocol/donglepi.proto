@@ -4,9 +4,10 @@ message DonglePiData {
     required uint32 values = 2;
   }
   optional GPIO gpio = 1;
-  optional bytes uart = 2;
-  optional bytes spi = 3;
-  optional bytes i2c = 4;
+  optional GPIO triggers = 2;
+  optional bytes uart = 3;
+  optional bytes spi = 4;
+  optional bytes i2c = 5;
 }
 
 message Transport {
@@ -26,9 +27,15 @@ message DonglePiRequest {
            UP = 1;
            DOWN = 2;
          }
+         enum Edge {
+           BOTH = 0;
+           RISING = 1;
+           FALLING = 2;
+         }
          required uint32 number = 1;
          required Direction direction = 2;
          optional Pull pull = 3 [default = OFF];
+         optional Edge trigger = 4;
       }
       repeated Pin pins = 1;
     }

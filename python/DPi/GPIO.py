@@ -1,3 +1,6 @@
+import threading
+from DPi import main_loop
+
 # Modes
 BCM = 11
 BOARD = 10
@@ -29,9 +32,67 @@ UNKNOWN = -1
 RPI_REVISION = 2
 VERSION = '0.5.6'
 
+# This is only for the last version of the numbering (it changed tons of times)
+# gbin: can be optimized with a list.
+BCM2PI = {
+     2: 3,  # GPIO02 = pin 3
+     3: 5,
+     4: 7,
+    14: 8,
+    15:10,
+    17:11,
+    18:12,
+    27:13,
+    22:15,
+    23:16,
+    24:18,
+    10:19,
+     9:21,
+    25:22,
+    11:23,
+     8:24,
+     7:26
+    }
+
+current_mode = None # Runtime error if it is not set.
+functions = [
+    None,    # 0
+    None,    # 1
+    None,    # 2
+    PWM,     # 3 (I2C)
+    None,    # 4
+    PWM,     # 5 (I2C)
+    None,    # 6
+    IN,      # 7
+    SERIAL,  # 8
+    None,    # 9
+    SERIAL,  # 10
+    IN,      # 11
+    IN,      # 12
+    IN,      # 13
+    None,    # 14
+    IN,      # 15
+    IN,      # 16
+    None,    # 17
+    IN,      # 18
+    SPI,     # 19
+    None,    # 20
+    SPI,     # 21
+    IN,      # 22
+    SPI,     # 23
+    SPI,     # 24
+    None,    # 25
+    SPI,     # 26
+    ]
+
+comm_thread = threading.Thread(target=main_loop,
+                               name="DonglePi comm thread",
+                               args=(dp_callback,))
+
 def add_event_callback(channel, callback):
   raise NotImplementedError()
 
+# bouncetime in ms
 def add_event_detect(channel, edge, callback=None, bouncetime=None):
   raise NotImplementedError()
 
@@ -63,7 +124,7 @@ def event_detected(channel):
 #   Return the current GPIO function (IN, OUT, PWM, SERIAL, I2C, SPI)
 #       channel - either board pin number or BCM number depending on which mode is set.
 def gpio_function(channel):
-  raise NotImplementedError()
+  return functions[channel]
 
 # Input from a GPIO channel.  Returns HIGH=1=True or LOW=0=False
 # channel - either board pin number or BCM number depending on which mode is set.
@@ -80,7 +141,12 @@ def remove_event_detect(channel):
 # BOARD - Use Raspberry Pi board numbers
 # BCM   - Use Broadcom GPIO 00..nn numbers
 def setmode(mode):
-  raise NotImplementedError()
+  if mode not in (BOARD, BCM):
+    raise ValueError()
+  global current_mode
+  current_mode = mode
+  if not comm_thread.is_alive():
+    comm_thread.start()
 
 # setup(...)
 # Set up the GPIO channel, direction and (optional) pull/up down control
@@ -101,4 +167,6 @@ def setwarnings(on):
 def wait_for_edge(channel, edge):
   raise NotImplementedError()
 
-
+def dp_callback(donglepi_response):
+  # gbin: forward to the callbacks
+  pass
