@@ -156,36 +156,51 @@ void cdc_config(uint8_t port, usb_cdc_line_coding_t * cfg) {
 }
 
 #define USB_BUFFER_SIZE 1024
+static uint8_t buffer[USB_BUFFER_SIZE];
+
 void cdc_rx_notify(uint8_t port) {
   l("cdc_rx_notify [%d]", port);
-  static uint8_t rx_buffer[USB_BUFFER_SIZE];
-  static uint16_t offset = 0;
-
-  offset = USB_BUFFER_SIZE - udi_cdc_read_buf(rx_buffer + offset, USB_BUFFER_SIZE - offset);  
-  if (offset < 2) {
-     l("not enough data for a message yet");
-     return; // this is not even enough for a count.
+  
+  uint8_t b = udi_cdc_getc();
+  if (b != 0x08) {
+    l("Protocol desync");
   }
+  l("First byte ok");
+  uint32_t offset=0;
+  do {
+    buffer[offset++] = b;
+    b = udi_cdc_getc();
+    l("-> 0x%02x", b);
+  } while(b & 0x80);
+  buffer[offset++] = b;
+  // Now we have enough to know the size
+  l("Length read, decoding...");
+  l("... 0x%02x 0x%02x", buffer[0], buffer[1]);
 
-  l("create stream");
-  pb_istream_t istream = pb_istream_from_buffer(rx_buffer, USB_BUFFER_SIZE - offset);
-  l("create message");
+  pb_istream_t istream = pb_istream_from_buffer(buffer+1, USB_BUFFER_SIZE);
+  l("istream bytes_left before %d", istream.bytes_left);
+  uint64_t len = 0;
+  pb_decode_varint(&istream, &len);
+  l("message_length %d", (uint32_t) len);
+  l("offset %d", offset);
+  udi_cdc_read_buf(buffer + offset, len);  
+  l("decode message");
+  istream = pb_istream_from_buffer(buffer + offset, USB_BUFFER_SIZE - offset);
   DonglePiRequest request;
-  if (!pb_decode_delimited(&istream, DonglePiRequest_fields, &request)) {
-    l("failed to decode the size of the packet, wait for more data");
+  if (!pb_decode(&istream, DonglePiRequest_fields, &request)) {
+    l("failed to decode the packet, wait for more data");
     return;
   }
 
   l("Request #%d received", request.message_nb);
-  static uint8_t tx_buffer[USB_BUFFER_SIZE];
-  pb_ostream_t ostream = pb_ostream_from_buffer(tx_buffer, 0);
+  pb_ostream_t ostream = pb_ostream_from_buffer(buffer, USB_BUFFER_SIZE);
   
-  DonglePiResponse response;
+  DonglePiResponse response = {};
   response.message_nb = request.message_nb;
-  l("Create response for #%d", request.message_nb);
+  l("Create response for #%d", response.message_nb);
   pb_encode_delimited(&ostream, DonglePiResponse_fields, &response);
-  l("Write response");
-  uint32_t wrote = udi_cdc_write_buf(tx_buffer, ostream.bytes_written);
+  l("Write response nb_bytes = %d", ostream.bytes_written);
+  uint32_t wrote = udi_cdc_write_buf(buffer, ostream.bytes_written);
   l("Done. wrote %d bytes", wrote);
 }
 

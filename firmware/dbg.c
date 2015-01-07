@@ -12,7 +12,7 @@ void l(const char * format, ... ) {
   char string[512];
   va_list argptr;
   va_start(argptr, format);
-  int size = sprintf(string, format, argptr);
+  int size = vsprintf(string, format, argptr);
   va_end(argptr);
   usart_write_buffer_wait(&usart_module, (const uint8_t *)string, size);
   usart_write_buffer_wait(&usart_module, (const uint8_t *)"\r\n", 2);

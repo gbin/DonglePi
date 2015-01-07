@@ -2,6 +2,11 @@ import donglepi_pb2
 import threading
 import serial
 import logging
+from google.protobuf.message import DecodeError
+from google.protobuf.internal.decoder import _DecodeVarint32 as DecodeVarint32 
+from serial.tools import list_ports
+
+logging.basicConfig(level=logging.DEBUG)
 
 def hexdump(s):
   return " ".join("{:02x}".format(ord(c)) for c in s)
@@ -19,36 +24,53 @@ last_response = donglepi_pb2.DonglePiResponse()
 response_lock = threading.Lock()
 
 
+def find_donglepi():
+  try:
+     return next(list_ports.grep("DonglePI"))[0]
+  except StopIteration:
+     return None
+
 def main_loop(cb):
   global pending_request
-  port = serial.Serial(port="/dev/ttyACA0", baudrate=115200, timeout=0.0002)
-  port.open()
+  port_name = find_donglepi()
+  if not port_name:
+    logging.error("Could not find a plugged DonglePi.")
+    return
+  port = serial.Serial(port=port_name, baudrate=115200, timeout=0.5) #0.0002)
+  logging.debug("DonglePi found on [%s]" % port_name)
   rcv_buffer = ""
+  pending_request.message_nb = 314
   while True:
     with request_lock:
       request_number = pending_request.message_nb
       msg = delimitedMessage(pending_request)
       pending_request = donglepi_pb2.DonglePiRequest()
       pending_request.message_nb = (request_number + 1) % 65536
+    logging.debug("Write message #%d" % request_number)
     port.write(msg)
+    print(hexdump(msg))
+    logging.debug("Write message #%d OK" % request_number)
 
+    
     delimiter = donglepi_pb2.Transport()
-    offset = -1
     while True:
       rcv_buffer += port.read(1024)
-      if len(rcv_buffer) < 2:
-        continue # too short for a message
-      if offset == -1:
-        offset = delimiter.ParseFromString(rcv_buffer) # TODO check if error
-
-      if len(rcv_buffer) - offset < delimiter.message_length:
-        continue # not enough !
+      print(hexdump(rcv_buffer))
+      try:
+        (msg_length, offset) = DecodeVarint32(rcv_buffer, 0)
+        logging.debug("expected message len = %s" % msg_length)
+      except DecodeError:
+        logging.debug("not enough for the init len")
+        continue
+      if len(rcv_buffer) - offset == msg_length:
+        break
 
     response = donglepi_pb2.DonglePiResponse()
     response.ParseFromString(
-        rcv_buffer[offset:offset + delimiter.message_length])
-    rcv_buffer = rcv_buffer[delimiter.message_length:]
-    if response.message_nb != pending_request.message_nb:
+        rcv_buffer[offset:offset + msg_length])
+    logging.debug("Response parsed #%d" % response.message_nb)
+    rcv_buffer = rcv_buffer[msg_length + offset:]
+    if response.message_nb != request_number:
       logging.warn("Donglepi desynchronized req nb = %d but resp nb = %d" %
                    (response.message_nb, pending_request.message_nb))
 

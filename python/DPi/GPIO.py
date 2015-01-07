@@ -59,9 +59,9 @@ functions = [
     None,    # 0
     None,    # 1
     None,    # 2
-    PWM,     # 3 (I2C)
+    HARD_PWM,# 3 (I2C)
     None,    # 4
-    PWM,     # 5 (I2C)
+    HARD_PWM,# 5 (I2C)
     None,    # 6
     IN,      # 7
     SERIAL,  # 8
@@ -84,10 +84,6 @@ functions = [
     None,    # 25
     SPI,     # 26
     ]
-
-comm_thread = threading.Thread(target=main_loop,
-                               name="DonglePi comm thread",
-                               args=(dp_callback,))
 
 def add_event_callback(channel, callback):
   raise NotImplementedError()
@@ -170,3 +166,10 @@ def wait_for_edge(channel, edge):
 def dp_callback(donglepi_response):
   # gbin: forward to the callbacks
   pass
+
+
+comm_thread = threading.Thread(target=main_loop,
+                               name="DonglePi comm thread",
+                               args=(dp_callback,))
+comm_thread.daemon = True
+
