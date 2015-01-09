@@ -160,7 +160,7 @@ static uint8_t buffer[USB_BUFFER_SIZE];
 
 void cdc_rx_notify(uint8_t port) {
   l("cdc_rx_notify [%d]", port);
-  
+
   uint8_t b = udi_cdc_getc();
   if (b != 0x08) {
     l("Protocol desync");
@@ -183,7 +183,7 @@ void cdc_rx_notify(uint8_t port) {
   pb_decode_varint(&istream, &len);
   l("message_length %d", (uint32_t) len);
   l("offset %d", offset);
-  udi_cdc_read_buf(buffer + offset, len);  
+  udi_cdc_read_buf(buffer + offset, len);
   l("decode message");
   istream = pb_istream_from_buffer(buffer + offset, USB_BUFFER_SIZE - offset);
   DonglePiRequest request;
@@ -193,8 +193,8 @@ void cdc_rx_notify(uint8_t port) {
   }
 
   l("Request #%d received", request.message_nb);
+
   pb_ostream_t ostream = pb_ostream_from_buffer(buffer, USB_BUFFER_SIZE);
-  
   DonglePiResponse response = {};
   response.message_nb = request.message_nb;
   l("Create response for #%d", response.message_nb);
