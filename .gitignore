@@ -10,3 +10,4 @@ firmware/*.lss
 firmware/*.map
 firmware/*.sym
 **/*.pyc
+DPi/donglepi_pb2.py
