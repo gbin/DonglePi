@@ -1,5 +1,5 @@
 import threading
-from DPi import main_loop
+import DPi
 
 # Modes
 BCM = 11
@@ -129,7 +129,13 @@ def input(channel):
 
 
 def output(channel, value):
-  raise NotImplementedError()
+  with DPi.request_lock:
+    DPi.pending_request.data.gpio.mask |= 1 << 7
+    if value:
+      DPi.pending_request.data.gpio.values |= value << 7
+    else:
+      DPi.pending_request.data.gpio.values &= ~(value << 7)
+
 
 def remove_event_detect(channel):
   raise NotImplementedError()
@@ -142,17 +148,24 @@ def setmode(mode):
   global current_mode
   current_mode = mode
   if not comm_thread.is_alive():
+    DPi.pending_request = DPi.donglepi_pb2.DonglePiRequest()
     comm_thread.start()
 
 # setup(...)
 # Set up the GPIO channel, direction and (optional) pull/up down control
 # channel        - either board pin number or BCM number depending on which mode is set.
-# direction      - INPUT or OUTPUT
+# direction      - IN or OUT
 # [pull_up_down] - PUD_OFF (default), PUD_UP or PUD_DOWN
 # [initial]      - Initial value for an output channel (gbin: LOW / HIGH for
 # OUTPUT only)
 def setup(channel, direction, pull_up_down = PUD_OFF, initial=None):
-  raise NotImplementedError()
+  with DPi.request_lock:
+    new_pin = DPi.pending_request.config.gpio.pins.add()
+    new_pin.number = channel
+    if direction == IN:
+      new_pin.direction = DPi.donglepi_pb2.DonglePiRequest.Config.GPIO.Pin.IN
+    else:
+      new_pin.direction = DPi.donglepi_pb2.DonglePiRequest.Config.GPIO.Pin.OUT
 
 def setwarnings(on):
   raise NotImplementedError()
@@ -167,8 +180,7 @@ def dp_callback(donglepi_response):
   # gbin: forward to the callbacks
   pass
 
-
-comm_thread = threading.Thread(target=main_loop,
+comm_thread = threading.Thread(target=DPi.main_loop,
                                name="DonglePi comm thread",
                                args=(dp_callback,))
 comm_thread.daemon = True
