@@ -2,7 +2,6 @@
 #include "dbg.h"
 
 #define DEBUG_LED1 PIN_PA28
-#define DEBUG_LED2 PIN_PA02
 #define DEBUG_BUTTON PIN_PA27
 
 struct usart_module usart_module;
@@ -25,12 +24,12 @@ void log_init() {
   usart_conf.character_size = USART_CHARACTER_SIZE_8BIT;
 
   usart_conf.baudrate = 115200;
-  usart_conf.mux_setting = USART_RX_1_TX_0_XCK_1;
-  usart_conf.pinmux_pad0 = PINMUX_PA16D_SERCOM3_PAD0;
-  usart_conf.pinmux_pad1 = PINMUX_PA17D_SERCOM3_PAD1;
-  usart_conf.pinmux_pad2 = PINMUX_UNUSED;
-  usart_conf.pinmux_pad3 = PINMUX_UNUSED;
-  while (usart_init(&usart_module, SERCOM3, &usart_conf) != STATUS_OK) {
+  usart_conf.mux_setting = USART_RX_3_TX_2_XCK_3;
+  usart_conf.pinmux_pad0 = PINMUX_UNUSED;
+  usart_conf.pinmux_pad1 = PINMUX_UNUSED;
+  usart_conf.pinmux_pad2 = PINMUX_PA14C_SERCOM2_PAD2;
+  usart_conf.pinmux_pad3 = PINMUX_PA15C_SERCOM2_PAD3;
+  while (usart_init(&usart_module, SERCOM2, &usart_conf) != STATUS_OK) {
   }
   usart_enable(&usart_module);
   l("-----------  DonglePi debug console ------------");
@@ -42,14 +41,6 @@ void on1() {
 
 void off1() {
   port_pin_set_output_level(DEBUG_LED1, 0);
-}
-
-void on2() {
-  port_pin_set_output_level(DEBUG_LED2, 1);
-}
-
-void off2() {
-  port_pin_set_output_level(DEBUG_LED2, 0);
 }
 
 bool get_button() {
