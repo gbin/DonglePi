@@ -63,7 +63,7 @@ static void configure_pins(void) {
   l("Init i2c");
   struct i2c_master_config config_i2c_master;
   i2c_master_get_config_defaults(&config_i2c_master);
-  config_i2c_master.buffer_timeout = 10000; 
+  config_i2c_master.buffer_timeout = 10000;
   config_i2c_master.pinmux_pad0 = PINMUX_PA16C_SERCOM1_PAD0;
   config_i2c_master.pinmux_pad1 = PINMUX_PA17C_SERCOM1_PAD1;
   config_i2c_master.baud_rate = I2C_MASTER_BAUD_RATE_100KHZ;
@@ -85,18 +85,18 @@ static void configure_pins(void) {
     .data_length = 2,
     .data = i2cbibyte,
   };
- 
+
   l("Init display");
-  
+
   i2cbyte[0] = 0x21; // oscillator on
   if (i2c_master_write_packet_wait(&i2c_master, &monobyte) != STATUS_OK)
-    l("1 not OK");  
+    l("1 not OK");
   i2cbyte[0] = 0x81; // on, no blink
   if (i2c_master_write_packet_wait(&i2c_master, &monobyte) != STATUS_OK)
-    l("2 not OK");  
+    l("2 not OK");
   i2cbyte[0] = 0xEF; // brighness
   if (i2c_master_write_packet_wait(&i2c_master, &monobyte) != STATUS_OK)
-    l("3 not OK");  
+    l("3 not OK");
 
   l("Draw stuff");
   // draw stuff
@@ -104,7 +104,7 @@ static void configure_pins(void) {
     i2cbibyte[0] = i*2;
     i2cbibyte[1] = 1 << i;
     if (i2c_master_write_packet_wait(&i2c_master, &bibyte) != STATUS_OK)
-      l("w not OK");  
+      l("w not OK");
     i2cbibyte[0] = i*2 + 1;
     i2cbibyte[1] = 1 << (8-i);
     if (i2c_master_write_packet_wait(&i2c_master, &bibyte) != STATUS_OK)
@@ -223,7 +223,7 @@ bool handle_pin_configuration_cb(pb_istream_t *stream, const pb_field_t *field, 
   }
   l("Pin number %d", pin.number);
   l("Pin direction %d", pin.direction);
-  
+
   struct port_config config_port_pin;
   port_get_config_defaults(&config_port_pin);
   if (pin.direction == DonglePiRequest_Config_GPIO_Pin_Direction_OUT) {
@@ -252,8 +252,8 @@ bool handle_i2c_write_data_cb(pb_istream_t *stream, const pb_field_t *field, voi
       .data = buf,
   };
   if (i2c_master_write_packet_wait(&i2c_master, &packet) != STATUS_OK)
-    l("w not OK");  
- 
+    l("w not OK");
+
   return true;
 }
 
@@ -265,7 +265,7 @@ bool handle_i2c_write_cb(pb_istream_t *stream, const pb_field_t *field, void **a
   if (!pb_decode(stream, DonglePiData_I2C_Write_fields, &write)) {
     l("Failed to decode an I2C write");
   }
- 
+
   return true;
 }
 
