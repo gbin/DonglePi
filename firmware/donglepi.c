@@ -235,6 +235,40 @@ bool handle_pin_configuration_cb(pb_istream_t *stream, const pb_field_t *field, 
   return true;
 }
 
+bool handle_i2c_write_data_cb(pb_istream_t *stream, const pb_field_t *field, void **arg) {
+  l("Received a i2c write DATA callback");
+  DonglePiData_I2C_Write* write = (DonglePiData_I2C_Write*)(*arg);
+  l("Addr %02x", write->addr);
+  size_t len = stream->bytes_left;
+  l("Length %d", len);
+  uint8_t buf[255];
+  if (len > sizeof(buf) - 1 || !pb_read(stream, buf, len))
+    return false;
+
+  l("Data %02x %02x", buf[0], buf[1]);
+  struct i2c_master_packet packet = {
+      .address = write->addr,
+      .data_length = len,
+      .data = buf,
+  };
+  if (i2c_master_write_packet_wait(&i2c_master, &packet) != STATUS_OK)
+    l("w not OK");  
+ 
+  return true;
+}
+
+bool handle_i2c_write_cb(pb_istream_t *stream, const pb_field_t *field, void **arg) {
+  l("Received a i2c write callback");
+  DonglePiData_I2C_Write write;
+  write.buffer.funcs.decode = handle_i2c_write_data_cb;
+  write.buffer.arg = &write;
+  if (!pb_decode(stream, DonglePiData_I2C_Write_fields, &write)) {
+    l("Failed to decode an I2C write");
+  }
+ 
+  return true;
+}
+
 void cdc_rx_notify(uint8_t port) {
   l("cdc_rx_notify [%d]", port);
 
@@ -265,6 +299,8 @@ void cdc_rx_notify(uint8_t port) {
   istream = pb_istream_from_buffer(buffer + offset, len);
   DonglePiRequest request = {{NULL}};
   request.config.gpio.pins.funcs.decode = handle_pin_configuration_cb;
+  request.data.i2c.writes.funcs.decode = handle_i2c_write_cb;
+
   if (!pb_decode(&istream, DonglePiRequest_fields, &request)) {
     l("failed to decode the packet, wait for more data");
     return;

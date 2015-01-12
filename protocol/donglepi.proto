@@ -3,34 +3,23 @@ message DonglePiData {
     required uint32 mask = 1;
     required uint32 values = 2;
   }
-
   message I2C {
-    enum Transaction {
-      WRITE_QUICK = 0;          // write_quick(int addr)                                 -> long    Quick transaction.
-      READ_BYTE = 1;            // read_byte(int addr)                                   -> long    Read Byte transaction.
-      WRITE_BYTE = 2;           // write_byte(int addr, char val)                        -> long    Write Byte transaction.
-      READ_BYTE_DATA = 3;       // read_byte_data(int addr, char cmd)                    -> long    Read Byte Data transaction. 
-      WRITE_BYTE_DATA = 4;      // write_byte_data(int addr, char cmd, char val)         -> long    Write Byte Data transaction. 
-      READ_WORD_DATA = 5;       // read_word_data(int addr, char cmd)                    -> long    Read Word Data transaction.
-      WRITE_WORD_DATA = 6;      // write_word_data(int addr, char cmd, int val)          -> long    Write Word Data transaction.
-      PROCESS_CALL = 7;         // process_call(int addr, char cmd, int val)             -> long    Process Call transaction.
-      READ_BLOCK_DATA = 8;      // read_block_data(int addr, char cmd)                   -> long[]  Read Block Data transaction.
-      WRITE_DLOCK_DATA = 9;     // write_block_data(int addr, char cmd, long[] vals)     -> None    Write Block Data transaction.
-      BLOCK_PROCESS_CALL = 10;  // block_process_call(int addr, char cmd, long[] vals)   -> long[]  Block Process Call transaction.
-      READ_I2C_BLOCK_DATA = 11; // read_i2c_block_data(int addr, char cmd)               -> long[]  Block Read transaction.
-      WRITE_I2C_BLOCK = 12;     // write_i2c_block_data(int addr, char cmd, long[] vals) -> None    Block Write transaction.
+    message Read {
+      required uint32 addr = 1;
+      required uint32 size = 2;
     }
-    required Transaction trans = 1;
-    required uint32 addr = 2;
-    optional uint32 cmd  = 3;
-    optional uint32 val  = 4;
-    optional bytes vals  = 5;
+    message Write {
+      required uint32 addr = 1;
+      required bytes buffer = 2;
+    }
+    repeated Read reads = 1;
+    repeated Write writes = 2;
   }
   optional GPIO gpio = 1;
   optional GPIO triggers = 2;
-  repeated I2C i2c = 3;
-  optional bytes uart = 4;
-  optional bytes spi = 5;
+  optional I2C i2c = 3;
+  optional bytes uart = 5;
+  optional bytes spi = 6;
 }
 
 message Transport {
