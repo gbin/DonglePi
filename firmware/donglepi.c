@@ -49,12 +49,67 @@ static uint8_t pin_map[28] = {
    SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;
    }*/
 
+struct i2c_master_module i2c_master;
+
 
 static void configure_pins(void) {
+  // GPIO stuff
   struct port_config config_port_pin;
   port_get_config_defaults(&config_port_pin);
   config_port_pin.direction = PORT_PIN_DIR_OUTPUT;
   port_pin_set_config(PIN_PA28, &config_port_pin);
+
+  // I2C stuff
+  l("Init i2c");
+  struct i2c_master_config config_i2c_master;
+  i2c_master_get_config_defaults(&config_i2c_master);
+  config_i2c_master.buffer_timeout = 10000; 
+  config_i2c_master.pinmux_pad0 = PINMUX_PA16C_SERCOM1_PAD0;
+  config_i2c_master.pinmux_pad1 = PINMUX_PA17C_SERCOM1_PAD1;
+  config_i2c_master.baud_rate = I2C_MASTER_BAUD_RATE_100KHZ;
+
+  if (i2c_master_init(&i2c_master, SERCOM1, &config_i2c_master)!=STATUS_OK)
+    l("Init Error");
+  i2c_master_enable(&i2c_master);
+
+  uint8_t i2cbyte[1] = {0};
+  uint8_t i2cbibyte[2] = {0, 0};
+  struct i2c_master_packet monobyte = {
+    .address = 0x70,
+    .data_length = 1,
+    .data = i2cbyte,
+  };
+
+  struct i2c_master_packet bibyte = {
+    .address = 0x70,
+    .data_length = 2,
+    .data = i2cbibyte,
+  };
+ 
+  l("Init display");
+  
+  i2cbyte[0] = 0x21; // oscillator on
+  if (i2c_master_write_packet_wait(&i2c_master, &monobyte) != STATUS_OK)
+    l("1 not OK");  
+  i2cbyte[0] = 0x81; // on, no blink
+  if (i2c_master_write_packet_wait(&i2c_master, &monobyte) != STATUS_OK)
+    l("2 not OK");  
+  i2cbyte[0] = 0xEF; // brighness
+  if (i2c_master_write_packet_wait(&i2c_master, &monobyte) != STATUS_OK)
+    l("3 not OK");  
+
+  l("Draw stuff");
+  // draw stuff
+  for (int i=0; i<8; i++) {
+    i2cbibyte[0] = i*2;
+    i2cbibyte[1] = 1 << i;
+    if (i2c_master_write_packet_wait(&i2c_master, &bibyte) != STATUS_OK)
+      l("w not OK");  
+    i2cbibyte[0] = i*2 + 1;
+    i2cbibyte[1] = 1 << (8-i);
+    if (i2c_master_write_packet_wait(&i2c_master, &bibyte) != STATUS_OK)
+      l("w not OK");   }
+  l("Draw stuff done");
 }
 
 
@@ -140,44 +195,16 @@ void main_cdc_disable(uint8_t port)
   main_b_cdc_enable = false;
 }
 
-void main_cdc_set_dtr(uint8_t port, bool b_enable)
-{
-  /*	if (b_enable) {
-  // Host terminal has open COM
-  ui_com_open(port);
-  }else{
-  // Host terminal has close COM
-  ui_com_close(port);
-  }*/
+void main_cdc_set_dtr(uint8_t port, bool b_enable) {
 }
 
 void ui_powerdown(void) {
-  // port_pin_set_output_level(PIN_PA28, 0);
 }
 
 void ui_init(void) {
-  /*
-#ifdef USB_DEVICE_LPM_SUPPORT
-struct extint_chan_conf config_extint_chan;
-
-extint_chan_get_config_defaults(&config_extint_chan);
-
-config_extint_chan.gpio_pin            = BUTTON_0_EIC_PIN;
-config_extint_chan.gpio_pin_mux        = BUTTON_0_EIC_MUX;
-config_extint_chan.gpio_pin_pull       = EXTINT_PULL_UP;
-config_extint_chan.filter_input_signal = true;
-config_extint_chan.detection_criteria  = EXTINT_DETECT_FALLING;
-extint_chan_set_config(BUTTON_0_EIC_LINE, &config_extint_chan);
-extint_register_callback(ui_wakeup_handler, BUTTON_0_EIC_LINE,
-EXTINT_CALLBACK_TYPE_DETECT);
-extint_chan_enable_callback(BUTTON_0_EIC_LINE,EXTINT_CALLBACK_TYPE_DETECT);
-#endif
-*/
-  /* Initialize LEDs */
 }
-void ui_wakeup(void)
-{
-  // port_pin_set_output_level(PIN_PA28, 1);
+
+void ui_wakeup(void) {
 }
 
 void cdc_config(uint8_t port, usb_cdc_line_coding_t * cfg) {

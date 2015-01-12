@@ -47,4 +47,7 @@
 #include <udi_cdc.h>
 #include <udc.h>
 #include <udd.h>
+
+// i2c stuff
+#include <i2c_master.h>
 #endif // ASF_H

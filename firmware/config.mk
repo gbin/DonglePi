@@ -23,6 +23,7 @@ CSRCS = \
        sam0/drivers/extint/extint.c                        \
        sam0/drivers/extint/extint_callback.c               \
        sam0/drivers/port/port.c                            \
+       sam0/drivers/sercom/i2c/i2c_samd21_r21_d10_d11/i2c_master.c    \
        sam0/drivers/sercom/usart/usart.c \
        sam0/drivers/sercom/sercom.c    \
        sam0/drivers/system/clock/clock_samd21_r21/clock.c  \
@@ -55,9 +56,10 @@ INC_PATH = \
        sam0/boards                                        \
        sam0/boards/dummy                                  \
        sam0/drivers/extint                                \
-       sam0/drivers/sercom    \
+       sam0/drivers/sercom                                \
        sam0/drivers/port                                  \
-       sam0/drivers/sercom/usart \
+       sam0/drivers/sercom/usart                          \
+       sam0/drivers/sercom/i2c                            \
        sam0/drivers/system                                \
        sam0/drivers/system/clock                          \
        sam0/drivers/system/clock/clock_samd21_r21         \
@@ -128,6 +130,7 @@ CPPFLAGS = \
        -D BOARD=DUMMY_BOARD \
 			 -D USART_CALLBACK_MODE=false \
        -D EXTINT_CALLBACK_MODE=true                       \
+			 -D I2C_MASTER_CALLBACK_MODE=false \
        -D __SAMD21E17A__
 
 # Extra flags to use when linking
