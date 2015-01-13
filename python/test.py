@@ -7,7 +7,7 @@ print("setup...")
 GPIO.setmode(GPIO.BOARD)
 i2c = smbus.SMBus(0)
 i2c.write_byte(LED_DEV, 0x21) # oscillator on
-i2c.write_byte(LED_DEV, 0x81) # swith on with no blink
+i2c.write_byte(LED_DEV, 0x81) # switch on with no blink
 i2c.write_byte(LED_DEV, 0xEF) # brightness
 for i in range(8):
   i2c.write_byte_data(LED_DEV, i*2, 1<<i)
