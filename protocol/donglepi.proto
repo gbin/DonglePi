@@ -57,7 +57,7 @@ message DonglePiRequest {
         BAUD_RATE_400KHZ = 400;
       }
       required bool enabled = 1;
-      optional Speed speed = 2;
+      optional Speed speed = 2 [default = BAUD_RATE_100KHZ];
     }
     message UART {
       enum Speed {

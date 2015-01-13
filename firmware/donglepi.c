@@ -50,6 +50,7 @@ static uint8_t pin_map[28] = {
    }*/
 
 struct i2c_master_module i2c_master;
+static bool i2c_master_active = false;
 
 
 static void configure_pins(void) {
@@ -59,19 +60,7 @@ static void configure_pins(void) {
   config_port_pin.direction = PORT_PIN_DIR_OUTPUT;
   port_pin_set_config(PIN_PA28, &config_port_pin);
 
-  // I2C stuff
-  l("Init i2c");
-  struct i2c_master_config config_i2c_master;
-  i2c_master_get_config_defaults(&config_i2c_master);
-  config_i2c_master.buffer_timeout = 10000;
-  config_i2c_master.pinmux_pad0 = PINMUX_PA16C_SERCOM1_PAD0;
-  config_i2c_master.pinmux_pad1 = PINMUX_PA17C_SERCOM1_PAD1;
-  config_i2c_master.baud_rate = I2C_MASTER_BAUD_RATE_100KHZ;
-
-  if (i2c_master_init(&i2c_master, SERCOM1, &config_i2c_master)!=STATUS_OK)
-    l("Init Error");
-  i2c_master_enable(&i2c_master);
-
+ /* 
   uint8_t i2cbyte[1] = {0};
   uint8_t i2cbibyte[2] = {0, 0};
   struct i2c_master_packet monobyte = {
@@ -109,7 +98,7 @@ static void configure_pins(void) {
     i2cbibyte[1] = 1 << (8-i);
     if (i2c_master_write_packet_wait(&i2c_master, &bibyte) != STATUS_OK)
       l("w not OK");   }
-  l("Draw stuff done");
+  l("Draw stuff done"); */
 }
 
 
@@ -215,7 +204,7 @@ void cdc_config(uint8_t port, usb_cdc_line_coding_t * cfg) {
 static uint8_t buffer[USB_BUFFER_SIZE];
 
 
-bool handle_pin_configuration_cb(pb_istream_t *stream, const pb_field_t *field, void **arg) {
+static bool handle_pin_configuration_cb(pb_istream_t *stream, const pb_field_t *field, void **arg) {
   l("Received a pin configuration callback");
   DonglePiRequest_Config_GPIO_Pin pin;
   if (!pb_decode(stream, DonglePiRequest_Config_GPIO_Pin_fields, &pin)) {
@@ -235,7 +224,7 @@ bool handle_pin_configuration_cb(pb_istream_t *stream, const pb_field_t *field, 
   return true;
 }
 
-bool handle_i2c_write_data_cb(pb_istream_t *stream, const pb_field_t *field, void **arg) {
+static bool handle_i2c_write_data_cb(pb_istream_t *stream, const pb_field_t *field, void **arg) {
   l("Received a i2c write DATA callback");
   DonglePiData_I2C_Write* write = (DonglePiData_I2C_Write*)(*arg);
   l("Addr %02x", write->addr);
@@ -257,7 +246,7 @@ bool handle_i2c_write_data_cb(pb_istream_t *stream, const pb_field_t *field, voi
   return true;
 }
 
-bool handle_i2c_write_cb(pb_istream_t *stream, const pb_field_t *field, void **arg) {
+static bool handle_i2c_write_cb(pb_istream_t *stream, const pb_field_t *field, void **arg) {
   l("Received a i2c write callback");
   DonglePiData_I2C_Write write;
   write.buffer.funcs.decode = handle_i2c_write_data_cb;
@@ -297,7 +286,7 @@ void cdc_rx_notify(uint8_t port) {
   udi_cdc_read_buf(buffer + offset, len);
   l("decode message");
   istream = pb_istream_from_buffer(buffer + offset, len);
-  DonglePiRequest request = {{NULL}};
+  DonglePiRequest request = {0};
   request.config.gpio.pins.funcs.decode = handle_pin_configuration_cb;
   request.data.i2c.writes.funcs.decode = handle_i2c_write_cb;
 
@@ -308,13 +297,42 @@ void cdc_rx_notify(uint8_t port) {
 
   l("Request #%d received", request.message_nb);
 
+  if (request.config.has_i2c) {
+    if (request.config.i2c.enabled) {
+      l("Configuration for i2c...");
+      struct i2c_master_config config_i2c_master;
+      i2c_master_get_config_defaults(&config_i2c_master);
+      config_i2c_master.buffer_timeout = 10000;
+      config_i2c_master.pinmux_pad0 = PINMUX_PA16C_SERCOM1_PAD0;
+      config_i2c_master.pinmux_pad1 = PINMUX_PA17C_SERCOM1_PAD1;
+      if (request.config.i2c.speed == DonglePiRequest_Config_I2C_Speed_BAUD_RATE_100KHZ) {
+        config_i2c_master.baud_rate = I2C_MASTER_BAUD_RATE_100KHZ;
+      } else {
+        config_i2c_master.baud_rate = I2C_MASTER_BAUD_RATE_400KHZ;
+      }
+
+      if (i2c_master_init(&i2c_master, SERCOM1, &config_i2c_master)!=STATUS_OK) {
+        l("I2C Init Error");
+      }
+      i2c_master_enable(&i2c_master);
+      i2c_master_active = true;
+      l("I2C enabled");
+    } else {
+      if (i2c_master_active) {
+        i2c_master_disable(&i2c_master);
+        i2c_master_active = false;
+        l("I2C disabled");
+      }
+    }
+  }
+
   if(request.has_data && request.data.has_gpio) {
      l("Data received  mask = %x  values = %x", request.data.gpio.mask, request.data.gpio.values);
      for (uint32_t pin = 2; request.data.gpio.mask;  pin++) {
        uint32_t bit = 1 << pin;
        if (request.data.gpio.mask & bit) {
          request.data.gpio.mask ^= bit;
-         bool value = request.data.gpio.values & bit; 
+         bool value = request.data.gpio.values & bit;
          l("Pin GPIO%02d set to %d", pin, value);
          port_pin_set_output_level(pin_map[pin], value);
        }
@@ -332,7 +350,7 @@ void cdc_rx_notify(uint8_t port) {
   l("Done. wrote %d bytes", wrote);
 }
 
-/* compression test 
+/* compression test
 // const char *source = "This is my input !";
 //char dest[200];
 //char restored[17];
