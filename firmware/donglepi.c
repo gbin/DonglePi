@@ -54,51 +54,11 @@ static bool i2c_master_active = false;
 
 
 static void configure_pins(void) {
-  // GPIO stuff
+  // Configure main LED as output
   struct port_config config_port_pin;
   port_get_config_defaults(&config_port_pin);
   config_port_pin.direction = PORT_PIN_DIR_OUTPUT;
   port_pin_set_config(PIN_PA28, &config_port_pin);
-
- /* 
-  uint8_t i2cbyte[1] = {0};
-  uint8_t i2cbibyte[2] = {0, 0};
-  struct i2c_master_packet monobyte = {
-    .address = 0x70,
-    .data_length = 1,
-    .data = i2cbyte,
-  };
-
-  struct i2c_master_packet bibyte = {
-    .address = 0x70,
-    .data_length = 2,
-    .data = i2cbibyte,
-  };
-
-  l("Init display");
-
-  i2cbyte[0] = 0x21; // oscillator on
-  if (i2c_master_write_packet_wait(&i2c_master, &monobyte) != STATUS_OK)
-    l("1 not OK");
-  i2cbyte[0] = 0x81; // on, no blink
-  if (i2c_master_write_packet_wait(&i2c_master, &monobyte) != STATUS_OK)
-    l("2 not OK");
-  i2cbyte[0] = 0xEF; // brighness
-  if (i2c_master_write_packet_wait(&i2c_master, &monobyte) != STATUS_OK)
-    l("3 not OK");
-
-  l("Draw stuff");
-  // draw stuff
-  for (int i=0; i<8; i++) {
-    i2cbibyte[0] = i*2;
-    i2cbibyte[1] = 1 << i;
-    if (i2c_master_write_packet_wait(&i2c_master, &bibyte) != STATUS_OK)
-      l("w not OK");
-    i2cbibyte[0] = i*2 + 1;
-    i2cbibyte[1] = 1 << (8-i);
-    if (i2c_master_write_packet_wait(&i2c_master, &bibyte) != STATUS_OK)
-      l("w not OK");   }
-  l("Draw stuff done"); */
 }
 
 
@@ -123,7 +83,6 @@ int main(void)
   // Start USB stack to authorize VBus monitoring
   l("udc_start");
   udc_start();
-
 
   // configure_systick_handler();
   // system_interrupt_enable_global();
