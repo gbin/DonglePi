@@ -165,8 +165,8 @@ static uint8_t buffer[USB_BUFFER_SIZE];
 
 static bool handle_pin_configuration_cb(pb_istream_t *stream, const pb_field_t *field, void **arg) {
   l("Received a pin configuration callback");
-  DonglePiRequest_Config_GPIO_Pin pin;
-  if (!pb_decode(stream, DonglePiRequest_Config_GPIO_Pin_fields, &pin)) {
+  Config_GPIO_Pin pin;
+  if (!pb_decode(stream, Config_GPIO_Pin_fields, &pin)) {
     l("Failed to decode a pin configuration");
   }
   l("Pin number %d", pin.number);
@@ -174,7 +174,7 @@ static bool handle_pin_configuration_cb(pb_istream_t *stream, const pb_field_t *
 
   struct port_config config_port_pin;
   port_get_config_defaults(&config_port_pin);
-  if (pin.direction == DonglePiRequest_Config_GPIO_Pin_Direction_OUT) {
+  if (pin.direction == Config_GPIO_Pin_Direction_OUT) {
     config_port_pin.direction = PORT_PIN_DIR_OUTPUT;
   } else {
     config_port_pin.direction = PORT_PIN_DIR_INPUT;
@@ -185,7 +185,7 @@ static bool handle_pin_configuration_cb(pb_istream_t *stream, const pb_field_t *
 
 static bool handle_i2c_write_data_cb(pb_istream_t *stream, const pb_field_t *field, void **arg) {
   l("Received a i2c write DATA callback");
-  DonglePiData_I2C_Write* write = (DonglePiData_I2C_Write*)(*arg);
+  Data_I2C_Write* write = (Data_I2C_Write*)(*arg);
   l("Addr %02x", write->addr);
   size_t len = stream->bytes_left;
   l("Length %d", len);
@@ -207,10 +207,10 @@ static bool handle_i2c_write_data_cb(pb_istream_t *stream, const pb_field_t *fie
 
 static bool handle_i2c_write_cb(pb_istream_t *stream, const pb_field_t *field, void **arg) {
   l("Received a i2c write callback");
-  DonglePiData_I2C_Write write;
+  Data_I2C_Write write;
   write.buffer.funcs.decode = handle_i2c_write_data_cb;
   write.buffer.arg = &write;
-  if (!pb_decode(stream, DonglePiData_I2C_Write_fields, &write)) {
+  if (!pb_decode(stream, Data_I2C_Write_fields, &write)) {
     l("Failed to decode an I2C write");
   }
 
@@ -264,7 +264,7 @@ void cdc_rx_notify(uint8_t port) {
       config_i2c_master.buffer_timeout = 10000;
       config_i2c_master.pinmux_pad0 = PINMUX_PA16C_SERCOM1_PAD0;
       config_i2c_master.pinmux_pad1 = PINMUX_PA17C_SERCOM1_PAD1;
-      if (request.config.i2c.speed == DonglePiRequest_Config_I2C_Speed_BAUD_RATE_100KHZ) {
+      if (request.config.i2c.speed == Config_I2C_Speed_BAUD_RATE_100KHZ) {
         config_i2c_master.baud_rate = I2C_MASTER_BAUD_RATE_100KHZ;
       } else {
         config_i2c_master.baud_rate = I2C_MASTER_BAUD_RATE_400KHZ;

@@ -1,4 +1,69 @@
-message DonglePiData {
+message Config {
+  message GPIO {
+    message Pin {
+      enum Direction {
+        IN = 0;
+        OUT = 1;
+      }
+      enum Pull {
+        OFF = 0;
+        UP = 1;
+        DOWN = 2;
+      }
+      enum Edge {
+        BOTH = 0;
+        RISING = 1;
+        FALLING = 2;
+      }
+      required uint32 number = 1;
+      required Direction direction = 2;
+      optional Pull pull = 3 [default = OFF];
+      optional Edge trigger = 4;
+    }
+    repeated Pin pins = 1;
+  }
+  message I2C {
+    enum Speed {
+      BAUD_RATE_100KHZ = 100;
+      BAUD_RATE_400KHZ = 400;
+    }
+    required bool enabled = 1;
+    optional Speed speed = 2 [default = BAUD_RATE_100KHZ];
+  }
+  message UART {
+    enum Speed {
+      BAUD_RATE_115200 = 115200;
+    }
+    enum Chr {
+      _5 = 5;
+      _6 = 6;
+      _7 = 7;
+      _8 = 8;
+      _9 = 9;
+    }
+    enum Parity {
+      NONE = 0;
+      ODD = 1;
+      EVEN = 2;
+    }
+    enum StopBits {
+      _1 = 1;
+      _2 = 2;
+    }
+    required bool enabled = 1;
+    required Speed speed = 2 [default = BAUD_RATE_115200];
+    required Chr chr = 3 [default = _8];
+    required Parity parity = 4 [default = NONE];
+    required StopBits stop_bits = 5 [default = _1];
+  }
+  optional GPIO gpio = 1;
+  optional I2C  i2c = 2;
+  optional UART uart = 3;
+  optional bool spi_on = 4;
+}
+
+
+message Data {
   message GPIO {
     required uint32 mask = 1;
     required uint32 values = 2;
@@ -27,71 +92,8 @@ message Transport {
 }
 
 message DonglePiRequest {
-  message Config {
-    message GPIO {
-      message Pin {
-         enum Direction {
-           IN = 0;
-           OUT = 1;
-         }
-         enum Pull {
-           OFF = 0;
-           UP = 1;
-           DOWN = 2;
-         }
-         enum Edge {
-           BOTH = 0;
-           RISING = 1;
-           FALLING = 2;
-         }
-         required uint32 number = 1;
-         required Direction direction = 2;
-         optional Pull pull = 3 [default = OFF];
-         optional Edge trigger = 4;
-      }
-      repeated Pin pins = 1;
-    }
-    message I2C {
-      enum Speed {
-        BAUD_RATE_100KHZ = 100;
-        BAUD_RATE_400KHZ = 400;
-      }
-      required bool enabled = 1;
-      optional Speed speed = 2 [default = BAUD_RATE_100KHZ];
-    }
-    message UART {
-      enum Speed {
-        BAUD_RATE_115200 = 115200;
-      }
-      enum Chr {
-        _5 = 5;
-        _6 = 6;
-        _7 = 7;
-        _8 = 8;
-        _9 = 9;
-      }
-      enum Parity {
-        NONE = 0;
-        ODD = 1;
-        EVEN = 2;
-      }
-      enum StopBits {
-        _1 = 1;
-        _2 = 2;
-      }
-      required bool enabled = 1;
-      required Speed speed = 2 [default = BAUD_RATE_115200];
-      required Chr chr = 3 [default = _8];
-      required Parity parity = 4 [default = NONE];
-      required StopBits stop_bits = 5 [default = _1];
-    }
-    optional GPIO gpio = 1;
-    optional I2C  i2c = 2;
-    optional UART uart = 3;
-    optional bool spi_on = 4;
-  }
   required uint32 message_nb = 1;
-  optional DonglePiData data = 2;
+  optional Data data = 2;
   optional Config config = 16;
 }
 
@@ -109,6 +111,6 @@ message DonglePiResponse {
     optional string debug_info = 16;
   }
   required uint32 message_nb = 1;
-  optional DonglePiData data = 2;
+  optional Data data = 2;
   optional Error error = 16;
 }
