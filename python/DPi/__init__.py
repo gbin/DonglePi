@@ -45,7 +45,7 @@ def main_loop(cb):
       request_number = pending_request.message_nb
       # new_pin = pending_request.config.gpio.pins.add()
       # new_pin.number = 7
-      # new_pin.direction = donglepi_pb2.DonglePiRequest.Config.GPIO.Pin.OUT
+      # new_pin.direction = donglepi_pb2.Config.GPIO.Pin.OUT
       # pending_request.data.gpio.mask = 1 << 7
       # pending_request.data.gpio.values = (request_number % 2) << 7
       write = pending_request.data.i2c.writes.add() 

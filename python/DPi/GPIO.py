@@ -163,9 +163,9 @@ def setup(channel, direction, pull_up_down = PUD_OFF, initial=None):
     new_pin = DPi.pending_request.config.gpio.pins.add()
     new_pin.number = channel
     if direction == IN:
-      new_pin.direction = DPi.donglepi_pb2.DonglePiRequest.Config.GPIO.Pin.IN
+      new_pin.direction = DPi.donglepi_pb2.Config.GPIO.Pin.IN
     else:
-      new_pin.direction = DPi.donglepi_pb2.DonglePiRequest.Config.GPIO.Pin.OUT
+      new_pin.direction = DPi.donglepi_pb2.Config.GPIO.Pin.OUT
 
 def setwarnings(on):
   raise NotImplementedError()
