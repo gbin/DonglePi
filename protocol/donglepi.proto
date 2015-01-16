@@ -16,9 +16,10 @@ message Config {
         FALLING = 2;
       }
       required uint32 number = 1;
-      required Direction direction = 2;
-      optional Pull pull = 3 [default = OFF];
-      optional Edge trigger = 4;
+      required bool active = 2 [default = true];
+      optional Direction direction = 3;
+      optional Pull pull = 4 [default = OFF];
+      optional Edge trigger = 5;
     }
     repeated Pin pins = 1;
   }

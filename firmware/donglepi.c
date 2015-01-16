@@ -7,40 +7,10 @@
 #include "ui.h"
 #include "uart.h"
 #include "dbg.h"
+#include "pins.h"
 
 static volatile bool main_b_cdc_enable = false;
 
-// RPI GPIO # -> SAMD pin#
-static uint8_t pin_map[28] = {
-  0,
-  0,
-  PIN_PA16,  // GPIO02
-  PIN_PA17,  // GPIO03
-  PIN_PA22,  // GPIO04
-  0,
-  0,
-  PIN_PA02,  // GPIO07
-  PIN_PA11,  // GPIO08
-  PIN_PA09,  // GPIO09
-  PIN_PA08,  // GPIO10
-  PIN_PA10,  // GPIO11
-  0,
-  0,
-  PIN_PA14,  // GPIO14
-  PIN_PA15,  // GPIO15
-  0,
-  PIN_PA00,  // GPIO17
-  PIN_PA04,  // GPIO18
-  0,
-  0,
-  0,
-  PIN_PA01,  // GPIO22
-  PIN_PA05,  // GPIO23
-  PIN_PA07,  // GPIO24
-  PIN_PA23,  // GPIO25
-  0,
-  PIN_PA06   // GPIO27
-};
 
 /* static void configure_systick_handler(void) {
    SysTick->CTRL = 0;
@@ -169,8 +139,18 @@ static bool handle_pin_configuration_cb(pb_istream_t *stream, const pb_field_t *
   if (!pb_decode(stream, Config_GPIO_Pin_fields, &pin)) {
     l("Failed to decode a pin configuration");
   }
+  l("Pin active %d", pin.active);
   l("Pin number %d", pin.number);
   l("Pin direction %d", pin.direction);
+
+  pinconfig_t config = {pin.active,
+                        pin.direction,
+                        pin.pull,
+                        pin.trigger};
+  if (!set_pin_GPIO_config(pin.number, config)) {
+    l("Error switching pin %d", pin.number);
+    return false;
+  }
 
   struct port_config config_port_pin;
   port_get_config_defaults(&config_port_pin);
@@ -178,6 +158,13 @@ static bool handle_pin_configuration_cb(pb_istream_t *stream, const pb_field_t *
     config_port_pin.direction = PORT_PIN_DIR_OUTPUT;
   } else {
     config_port_pin.direction = PORT_PIN_DIR_INPUT;
+    if (pin.pull == Config_GPIO_Pin_Pull_OFF) {
+      config_port_pin.input_pull = PORT_PIN_PULL_NONE;
+    } else if (pin.pull == Config_GPIO_Pin_Pull_UP) {
+      config_port_pin.input_pull = PORT_PIN_PULL_UP;
+    } else if (pin.pull == Config_GPIO_Pin_Pull_DOWN) {
+      config_port_pin.input_pull = PORT_PIN_PULL_DOWN;
+    }
   }
   port_pin_set_config(pin_map[pin.number], &config_port_pin);
   return true;

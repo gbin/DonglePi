@@ -42,6 +42,7 @@ CSRCS = \
        nanopb/pb_common.c																	 \
 			 protocol/donglepi.pb.c\
        donglepi.c                                          \
+			 pins.c\
 			 dbg.c\
 			 uart.c
 
