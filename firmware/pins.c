@@ -88,3 +88,6 @@ bool switch_uart(bool on) {
   return true;
 }
 
+pinconfig_t* get_pin_GPIO_config(uint8_t pin) {
+  return &(pin_configs[pin]);
+}

@@ -1,8 +1,10 @@
 #ifndef _PINS_H_
 #define _PINS_H_
 
+#define NB_PINS 28
+
 // everything related to pin configuration.
-extern uint8_t pin_map[28];
+extern uint8_t pin_map[NB_PINS];
 
 typedef struct pinconfig {
   bool active;
@@ -29,6 +31,7 @@ typedef struct pinconfig {
 
 bool is_available_for_GPIO(uint8_t pin);
 bool set_pin_GPIO_config(uint8_t pin, pinconfig_t config);
+pinconfig_t*get_pin_GPIO_config(uint8_t pin);
 
 bool switch_i2c(bool on);
 bool switch_spi(bool on);

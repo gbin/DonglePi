@@ -244,31 +244,33 @@ void cdc_rx_notify(uint8_t port) {
   l("Request #%d received", request.message_nb);
 
   if (request.config.has_i2c) {
-    if (request.config.i2c.enabled) {
-      l("Configuration for i2c...");
-      struct i2c_master_config config_i2c_master;
-      i2c_master_get_config_defaults(&config_i2c_master);
-      config_i2c_master.buffer_timeout = 10000;
-      config_i2c_master.pinmux_pad0 = PINMUX_PA16C_SERCOM1_PAD0;
-      config_i2c_master.pinmux_pad1 = PINMUX_PA17C_SERCOM1_PAD1;
-      if (request.config.i2c.speed == Config_I2C_Speed_BAUD_RATE_100KHZ) {
-        config_i2c_master.baud_rate = I2C_MASTER_BAUD_RATE_100KHZ;
-      } else {
-        config_i2c_master.baud_rate = I2C_MASTER_BAUD_RATE_400KHZ;
-      }
+    l("Configuration for i2c...");
+    if (switch_i2c(request.config.i2c.enabled)) {
+      if (request.config.i2c.enabled) {
+        struct i2c_master_config config_i2c_master;
+        i2c_master_get_config_defaults(&config_i2c_master);
+        config_i2c_master.buffer_timeout = 10000;
+        config_i2c_master.pinmux_pad0 = PINMUX_PA16C_SERCOM1_PAD0;
+        config_i2c_master.pinmux_pad1 = PINMUX_PA17C_SERCOM1_PAD1;
+        if (request.config.i2c.speed == Config_I2C_Speed_BAUD_RATE_100KHZ) {
+          config_i2c_master.baud_rate = I2C_MASTER_BAUD_RATE_100KHZ;
+        } else {
+          config_i2c_master.baud_rate = I2C_MASTER_BAUD_RATE_400KHZ;
+        }
 
-      if (i2c_master_init(&i2c_master, SERCOM1, &config_i2c_master)!=STATUS_OK) {
-        l("I2C Init Error");
-      }
-      i2c_master_enable(&i2c_master);
-      i2c_master_active = true;
-      l("I2C enabled");
+        if (i2c_master_init(&i2c_master, SERCOM1, &config_i2c_master)!=STATUS_OK) {
+          l("I2C Init Error");
+        }
+        i2c_master_enable(&i2c_master);
+        i2c_master_active = true;
+        l("I2C enabled");
+      } else if (i2c_master_active) {
+          i2c_master_disable(&i2c_master);
+          i2c_master_active = false;
+          l("I2C disabled");
+        }
     } else {
-      if (i2c_master_active) {
-        i2c_master_disable(&i2c_master);
-        i2c_master_active = false;
-        l("I2C disabled");
-      }
+      l("I2C cannot be enabled/disabled");
     }
   }
 
@@ -285,11 +287,28 @@ void cdc_rx_notify(uint8_t port) {
      }
   }
 
-
   pb_ostream_t ostream = pb_ostream_from_buffer(buffer, USB_BUFFER_SIZE);
   DonglePiResponse response = {};
   response.message_nb = request.message_nb;
   l("Create response for #%d", response.message_nb);
+
+  l("Read input pins");
+  uint32_t mask = 0;
+  uint32_t values = 0;
+  for(int i = 0; i < 28; i++) {
+    pinconfig_t* pin = get_pin_GPIO_config(i);
+    if (pin->active && pin->direction == Config_GPIO_Pin_Direction_OUT) {
+      mask |= 1 << i;
+      values |= port_pin_get_input_level(pin_map[i]) << i;
+    }
+  }
+  if (mask) {
+    response.has_data = true;
+    response.data.has_gpio = true;
+    response.data.gpio.mask = mask;
+    response.data.gpio.values = mask;
+  }
+
   pb_encode_delimited(&ostream, DonglePiResponse_fields, &response);
   l("Write response nb_bytes = %d", ostream.bytes_written);
   uint32_t wrote = udi_cdc_write_buf(buffer, ostream.bytes_written);
