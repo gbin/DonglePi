@@ -33,6 +33,7 @@ class SMBus(object):
 
   # Write Byte Data transaction.  int addr,char cmd,char val  long
   def write_byte_data(self, addr, cmd, val):
+    print("write " + str(val))
     self._write(addr, pack('BB', cmd, val))
     return None
 
