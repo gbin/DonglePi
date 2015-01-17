@@ -158,12 +158,19 @@ static bool handle_pin_configuration_cb(pb_istream_t *stream, const pb_field_t *
     config_port_pin.direction = PORT_PIN_DIR_OUTPUT;
   } else {
     config_port_pin.direction = PORT_PIN_DIR_INPUT;
-    if (pin.pull == Config_GPIO_Pin_Pull_OFF) {
-      config_port_pin.input_pull = PORT_PIN_PULL_NONE;
-    } else if (pin.pull == Config_GPIO_Pin_Pull_UP) {
-      config_port_pin.input_pull = PORT_PIN_PULL_UP;
-    } else if (pin.pull == Config_GPIO_Pin_Pull_DOWN) {
-      config_port_pin.input_pull = PORT_PIN_PULL_DOWN;
+    if (pin.has_pull) {
+      if (pin.pull == Config_GPIO_Pin_Pull_OFF) {
+        config_port_pin.input_pull = PORT_PIN_PULL_NONE;
+        l("Pull None");
+      } else if (pin.pull == Config_GPIO_Pin_Pull_UP) {
+        config_port_pin.input_pull = PORT_PIN_PULL_UP;
+        l("Pull Up");
+      } else if (pin.pull == Config_GPIO_Pin_Pull_DOWN) {
+        config_port_pin.input_pull = PORT_PIN_PULL_DOWN;
+        l("Pull Down");
+      }
+    } else {
+      l("No pull config for this pin");
     }
   }
   port_pin_set_config(pin_map[pin.number], &config_port_pin);
@@ -297,9 +304,12 @@ void cdc_rx_notify(uint8_t port) {
   uint32_t values = 0;
   for(int i = 0; i < 28; i++) {
     pinconfig_t* pin = get_pin_GPIO_config(i);
-    if (pin->active && pin->direction == Config_GPIO_Pin_Direction_OUT) {
+    if (pin->active && pin->direction == Config_GPIO_Pin_Direction_IN) {
+      l("pin %d active and input", i);
       mask |= 1 << i;
+      l("before values %x", values);
       values |= port_pin_get_input_level(pin_map[i]) << i;
+      l("after values %x", values);
     }
   }
   if (mask) {
