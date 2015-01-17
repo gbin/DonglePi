@@ -125,16 +125,19 @@ def gpio_function(channel):
 # Input from a GPIO channel.  Returns HIGH=1=True or LOW=0=False
 # channel - either board pin number or BCM number depending on which mode is set.
 def input(channel):
-  raise NotImplementedError()
+  with DPi.response_lock:
+    if not(DPi.last_response.data.gpio.mask & (1 << channel)):
+      print("Weird the channel " +  str(channel) + " is not streaming")
+    return bool(DPi.last_response.data.gpio.values & (1 << channel))
 
 
 def output(channel, value):
   with DPi.request_lock:
-    DPi.pending_request.data.gpio.mask |= 1 << 7
+    DPi.pending_request.data.gpio.mask |= 1 << channel
     if value:
-      DPi.pending_request.data.gpio.values |= value << 7
+      DPi.pending_request.data.gpio.values |= value << channel
     else:
-      DPi.pending_request.data.gpio.values &= ~(value << 7)
+      DPi.pending_request.data.gpio.values &= ~(value << channel)
 
 
 def remove_event_detect(channel):
@@ -161,12 +164,21 @@ def setmode(mode):
 def setup(channel, direction, pull_up_down = PUD_OFF, initial=None):
   with DPi.request_lock:
     new_pin = DPi.pending_request.config.gpio.pins.add()
+    new_pin.active = True
     new_pin.number = channel
     if direction == IN:
       new_pin.direction = DPi.donglepi_pb2.Config.GPIO.Pin.IN
+      if pull_up_down == PUD_OFF:
+        new_pin.pull = DPi.donglepi_pb2.Config.GPIO.Pin.OFF
+      elif pull_up_down == PUD_UP:
+        new_pin.pull = DPi.donglepi_pb2.Config.GPIO.Pin.UP
+      elif pull_up_down == PUD_DOWN:
+        new_pin.pull = DPi.donglepi_pb2.Config.GPIO.Pin.DOWN
+      else:
+        raise ValueError("Unknown pullup value")
     else:
       new_pin.direction = DPi.donglepi_pb2.Config.GPIO.Pin.OUT
-
+  
 def setwarnings(on):
   raise NotImplementedError()
 
