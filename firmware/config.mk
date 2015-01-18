@@ -44,6 +44,8 @@ CSRCS = \
        donglepi.c                                          \
 			 pins.c\
 			 dbg.c\
+			 i2c.c\
+			 gpio.c\
 			 uart.c
 
 

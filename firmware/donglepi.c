@@ -7,20 +7,11 @@
 #include "ui.h"
 #include "uart.h"
 #include "dbg.h"
+#include "i2c.h"
+#include "gpio.h"
 #include "pins.h"
 
 static volatile bool main_b_cdc_enable = false;
-
-
-/* static void configure_systick_handler(void) {
-   SysTick->CTRL = 0;
-   SysTick->LOAD = 999;
-   SysTick->VAL  = 0;
-   SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;
-   }*/
-
-struct i2c_master_module i2c_master;
-static bool i2c_master_active = false;
 
 
 static void configure_pins(void) {
@@ -177,40 +168,6 @@ static bool handle_pin_configuration_cb(pb_istream_t *stream, const pb_field_t *
   return true;
 }
 
-static bool handle_i2c_write_data_cb(pb_istream_t *stream, const pb_field_t *field, void **arg) {
-  l("Received a i2c write DATA callback");
-  Data_I2C_Write* write = (Data_I2C_Write*)(*arg);
-  l("Addr %02x", write->addr);
-  size_t len = stream->bytes_left;
-  l("Length %d", len);
-  uint8_t buf[255];
-  if (len > sizeof(buf) - 1 || !pb_read(stream, buf, len))
-    return false;
-
-  l("Data %02x %02x", buf[0], buf[1]);
-  struct i2c_master_packet packet = {
-      .address = write->addr,
-      .data_length = len,
-      .data = buf,
-  };
-  if (i2c_master_write_packet_wait(&i2c_master, &packet) != STATUS_OK)
-    l("w not OK");
-
-  return true;
-}
-
-static bool handle_i2c_write_cb(pb_istream_t *stream, const pb_field_t *field, void **arg) {
-  l("Received a i2c write callback");
-  Data_I2C_Write write;
-  write.buffer.funcs.decode = handle_i2c_write_data_cb;
-  write.buffer.arg = &write;
-  if (!pb_decode(stream, Data_I2C_Write_fields, &write)) {
-    l("Failed to decode an I2C write");
-  }
-
-  return true;
-}
-
 void cdc_rx_notify(uint8_t port) {
   l("cdc_rx_notify [%d]", port);
 
@@ -251,47 +208,11 @@ void cdc_rx_notify(uint8_t port) {
   l("Request #%d received", request.message_nb);
 
   if (request.config.has_i2c) {
-    l("Configuration for i2c...");
-    if (switch_i2c(request.config.i2c.enabled)) {
-      if (request.config.i2c.enabled) {
-        struct i2c_master_config config_i2c_master;
-        i2c_master_get_config_defaults(&config_i2c_master);
-        config_i2c_master.buffer_timeout = 10000;
-        config_i2c_master.pinmux_pad0 = PINMUX_PA16C_SERCOM1_PAD0;
-        config_i2c_master.pinmux_pad1 = PINMUX_PA17C_SERCOM1_PAD1;
-        if (request.config.i2c.speed == Config_I2C_Speed_BAUD_RATE_100KHZ) {
-          config_i2c_master.baud_rate = I2C_MASTER_BAUD_RATE_100KHZ;
-        } else {
-          config_i2c_master.baud_rate = I2C_MASTER_BAUD_RATE_400KHZ;
-        }
-
-        if (i2c_master_init(&i2c_master, SERCOM1, &config_i2c_master)!=STATUS_OK) {
-          l("I2C Init Error");
-        }
-        i2c_master_enable(&i2c_master);
-        i2c_master_active = true;
-        l("I2C enabled");
-      } else if (i2c_master_active) {
-          i2c_master_disable(&i2c_master);
-          i2c_master_active = false;
-          l("I2C disabled");
-        }
-    } else {
-      l("I2C cannot be enabled/disabled");
-    }
+    handle_i2c_config(request.config);
   }
 
   if(request.has_data && request.data.has_gpio) {
-     l("Data received  mask = %x  values = %x", request.data.gpio.mask, request.data.gpio.values);
-     for (uint32_t pin = 2; request.data.gpio.mask;  pin++) {
-       uint32_t bit = 1 << pin;
-       if (request.data.gpio.mask & bit) {
-         request.data.gpio.mask ^= bit;
-         bool value = request.data.gpio.values & bit;
-         l("Pin GPIO%02d set to %d", pin, value);
-         port_pin_set_output_level(pin_map[pin], value);
-       }
-     }
+    handle_gpio_write(request.data.gpio);
   }
 
   pb_ostream_t ostream = pb_ostream_from_buffer(buffer, USB_BUFFER_SIZE);
