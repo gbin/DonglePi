@@ -3,7 +3,7 @@ include ../nanopb/extra/nanopb.mk
 
 # Build rule for the protocol
 donglepi.pb.c: ../../protocol/donglepi.proto
-	$(PROTOC) $(PROTOC_OPTS) --nanopb_out=. -I../../protocol ../../protocol/donglepi.proto
+	$(PROTOC) $(PROTOC_OPTS) --nanopb_out=. -I../../protocol -I../../firmware/nanopb/generator/proto ../../protocol/donglepi.proto
 
 clean:
 	rm -f donglepi.pb.c
