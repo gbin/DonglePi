@@ -1,7 +1,4 @@
-#include <asf.h>
 #include "uart.h"
-#include "main.h"
-#include "ui.h"
 
 // gbin: kept here to implement the usart <-> USB bridge
 /*

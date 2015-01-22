@@ -99,7 +99,7 @@
 
 //! The includes of classes and other headers must be done at the end of this file to avoid compile error
 #include "udi_cdc_conf.h"
-#include "uart.h"
-#include "main.h"
+#include "donglepi.h" // we need the protos defined there
+
 
 #endif // _CONF_USB_H_
