@@ -4,7 +4,6 @@
 #include "pins.h"
 
 struct i2c_master_module i2c_master;
-static bool i2c_master_active = false;
 
 static void i2c_config(Config_I2C i2c_proto_config) {
   struct i2c_master_config config_i2c_master;
@@ -22,16 +21,12 @@ static void i2c_config(Config_I2C i2c_proto_config) {
     l("I2C Init Error");
   }
   i2c_master_enable(&i2c_master);
-  i2c_master_active = true;
   l("I2C enabled");
 }
 
 static void i2c_disable(void) {
-  if (i2c_master_active) {
-    i2c_master_disable(&i2c_master);
-    i2c_master_active = false;
-    l("I2C disabled");
-  }
+  i2c_master_disable(&i2c_master);
+  l("I2C disabled");
 }
 
 
