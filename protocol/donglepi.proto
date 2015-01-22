@@ -1,3 +1,5 @@
+import "nanopb.proto";
+
 message Config {
   message GPIO {
     message Pin {
@@ -57,10 +59,10 @@ message Config {
     required Parity parity = 4 [default = NONE];
     required StopBits stop_bits = 5 [default = _1];
   }
-  optional GPIO gpio = 1;
-  optional I2C  i2c = 2;
-  optional UART uart = 3;
-  optional bool spi_on = 4;
+  optional GPIO gpio = 1; // pins are already callbacks
+  optional I2C  i2c = 2 [(nanopb).type = FT_CALLBACK];
+  optional UART uart = 3 [(nanopb).type = FT_CALLBACK];
+  optional bool spi_on = 4 [(nanopb).type = FT_CALLBACK];
 }
 
 
@@ -94,8 +96,8 @@ message Transport {
 
 message DonglePiRequest {
   required uint32 message_nb = 1;
-  optional Data data = 2;
-  optional Config config = 16;
+  optional Config config = 2; // optimization constraint: be sure config is decoded *before* the data that can relies it on.
+  optional Data data = 3;
 }
 
 message DonglePiResponse {

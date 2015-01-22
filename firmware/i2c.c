@@ -26,7 +26,7 @@ static void i2c_config(Config_I2C i2c_proto_config) {
   l("I2C enabled");
 }
 
-static bool i2c_disable() {
+static void i2c_disable(void) {
   if (i2c_master_active) {
     i2c_master_disable(&i2c_master);
     i2c_master_active = false;
@@ -34,17 +34,24 @@ static bool i2c_disable() {
   }
 }
 
-void handle_i2c_config(Config config_pb) {
+
+bool handle_i2c_config_cb(pb_istream_t *stream, const pb_field_t *field, void **arg) {
     l("Configuration for i2c...");
-    if (switch_i2c(config_pb.i2c.enabled)) {
-      if (config_pb.i2c.enabled) {
-        i2c_config(config_pb.i2c); 
+    Config_I2C i2c;
+    if (!pb_decode(stream, Config_I2C_fields, &i2c)) {
+      l("Failed to decode a i2c configuration");
+    }
+
+    if (switch_i2c(i2c.enabled)) {
+      if (i2c.enabled) {
+        i2c_config(i2c);
       } else {
         i2c_disable();
       }
     } else {
       l("I2C cannot be enabled/disabled");
     }
+    return true;
 }
 
 static bool handle_i2c_write_data_cb(pb_istream_t *stream, const pb_field_t *field, void **arg) {

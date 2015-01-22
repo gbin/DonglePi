@@ -154,6 +154,7 @@ void cdc_rx_notify(uint8_t port) {
   l("decode message");
   istream = pb_istream_from_buffer(buffer + offset, len);
   DonglePiRequest request = {0};
+  request.config.i2c.funcs.decode = handle_i2c_config_cb;
   request.config.gpio.pins.funcs.decode = handle_gpio_pin_config_cb;
   request.data.i2c.writes.funcs.decode = handle_i2c_write_cb;
 
@@ -163,10 +164,6 @@ void cdc_rx_notify(uint8_t port) {
   }
 
   l("Request #%d received", request.message_nb);
-
-  if (request.config.has_i2c) {
-    handle_i2c_config(request.config);
-  }
 
   if(request.has_data && request.data.has_gpio) {
     handle_gpio_write(request.data.gpio);
