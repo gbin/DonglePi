@@ -4,8 +4,10 @@
 #define DEBUG_LED1 PIN_PA28
 #define DEBUG_BUTTON PIN_PA27
 
+#if SERIAL_DEBUG
 struct usart_module usart_module;
 struct usart_config usart_conf;
+#endif
 
 void l(const char * format, ... ) {
 #if SERIAL_DEBUG
