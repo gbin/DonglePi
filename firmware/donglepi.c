@@ -47,8 +47,6 @@ int main(void)
   l("udc_start");
   udc_start();
 
-  // configure_systick_handler();
-  // system_interrupt_enable_global();
   while (true) {
     sleepmgr_enter_sleep();
   }

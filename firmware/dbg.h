@@ -3,6 +3,9 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#ifndef SERIAL_DEBUG
+#define SERIAL_DEBUG true
+#endif
 void log_init(void);
 void l(const char * format, ... );
 void on1(void);

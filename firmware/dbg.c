@@ -8,6 +8,7 @@ struct usart_module usart_module;
 struct usart_config usart_conf;
 
 void l(const char * format, ... ) {
+#if SERIAL_DEBUG
   char string[512];
   va_list argptr;
   va_start(argptr, format);
@@ -15,9 +16,11 @@ void l(const char * format, ... ) {
   va_end(argptr);
   usart_write_buffer_wait(&usart_module, (const uint8_t *)string, size);
   usart_write_buffer_wait(&usart_module, (const uint8_t *)"\r\n", 2);
+#endif
 }
 
 void log_init() {
+#if SERIAL_DEBUG
   usart_get_config_defaults(&usart_conf);
   usart_conf.stopbits = USART_STOPBITS_1;
   usart_conf.parity = USART_PARITY_NONE;
@@ -33,6 +36,7 @@ void log_init() {
   }
   usart_enable(&usart_module);
   l("-----------  DonglePi debug console ------------");
+#endif
 }
 
 void on1() {
