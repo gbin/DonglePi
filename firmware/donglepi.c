@@ -16,7 +16,7 @@
 
 static volatile bool main_b_cdc_enable = false;
 
-static void configure_pins(void) {
+static void setup_led(void) {
   // Configure main LED as output
   struct port_config config_port_pin;
   port_get_config_defaults(&config_port_pin);
@@ -36,7 +36,7 @@ int main(void)
   l("sleep mgr start");
   sleepmgr_init();
   l("configure_pins");
-  configure_pins();
+  setup_led();
   l("ui_init");
   ui_init();
 
