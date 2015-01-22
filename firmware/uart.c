@@ -1,138 +1,124 @@
+#include <asf.h>
 #include "uart.h"
+#include "pins.h"
+#include "dbg.h"
 
-// gbin: kept here to implement the usart <-> USB bridge
 /*
-struct usart_module usart_module_edbg;
+   message UART {
+    enum Speed {
+      BAUD_RATE_115200 = 115200;
+    }
+    enum Chr {
+      _5 = 5;
+      _6 = 6;
+      _7 = 7;
+      _8 = 8;
+      _9 = 9;
+    }
+    enum Parity {
+      NONE = 0;
+      ODD = 1;
+      EVEN = 2;
+    }
+    enum StopBits {
+      _1 = 1;
+      _2 = 2;
+    }
+    required bool enabled = 1;
+    required Speed speed = 2 [default = BAUD_RATE_115200];
+    required Chr chr = 3 [default = _8];
+    required Parity parity = 4 [default = NONE];
+    required StopBits stop_bits = 5 [default = _1];
+  }
+*/
+
+#if !SERIAL_DEBUG
+struct usart_module usart_module;
 struct usart_config usart_conf;
+#endif
 
-static uint8_t tx_data;
-static uint8_t rx_data;
-
-static void usart_tx_callback(const struct usart_module *const module)
-{
-  if (udi_cdc_is_rx_ready()) {
-    ui_com_rx_start();
-    tx_data = udi_cdc_getc();
-    usart_write_buffer_job(&usart_module_edbg, &tx_data, 1);
-  } else {
-    usart_disable_callback(&usart_module_edbg, USART_CALLBACK_BUFFER_TRANSMITTED);
-    ui_com_rx_stop();
-  }
-}
-
-
-static void usart_rx_callback(const struct usart_module *const module)
-{
-  ui_com_tx_start();
-
-  if (!udi_cdc_is_tx_ready()) {
-    udi_cdc_signal_overrun();
-    ui_com_overflow();
-  } else {
-    udi_cdc_putc(rx_data);
-  }
-
-  ui_com_tx_stop();
-
-  usart_read_buffer_job(&usart_module_edbg, &rx_data, 1);
-
-  return;
-}
-
-
-
-void uart_config(uint8_t port,usb_cdc_line_coding_t *cfg)
-{
-  UNUSED(port);
+static void uart_config(Config_UART config) {
+#if !SERIAL_DEBUG
+  l("UART enabled");
   usart_get_config_defaults(&usart_conf);
-
-  switch (cfg->bCharFormat) {
-    case CDC_STOP_BITS_2:
-      usart_conf.stopbits = USART_STOPBITS_2;
-      break;
-
-    case CDC_STOP_BITS_1_5:
-      usart_conf.stopbits = USART_STOPBITS_1;
-      break;
-
-    case CDC_STOP_BITS_1:
-    default:
-      usart_conf.stopbits = USART_STOPBITS_1;
-      break;
+  switch (config.speed) {
+    case Config_UART_Speed_BAUD_RATE_115200:
+      usart_conf.baudrate = 115200;
+    break;
+    // TODO: other speeds
   }
-
-  switch (cfg->bParityType) {
-    case CDC_PAR_EVEN:
-      usart_conf.parity = USART_PARITY_EVEN;
-      break;
-
-    case CDC_PAR_ODD:
-      usart_conf.parity = USART_PARITY_ODD;
-      break;
-
-    case CDC_PAR_MARK:
-      usart_conf.parity = USART_PARITY_NONE;
-      break;
-
-    case CDC_PAR_SPACE:
-      usart_conf.parity = USART_PARITY_NONE;
-      break;
-
-    case CDC_PAR_NONE:
-    default:
-      usart_conf.parity = USART_PARITY_NONE;
-      break;
-  }
-
-  switch(cfg->bDataBits) {
-    case 5:
+  switch (config.chr) {
+    case Config_UART_Chr_B5:
       usart_conf.character_size = USART_CHARACTER_SIZE_5BIT;
       break;
-    case 6:
+    case Config_UART_Chr_B6:
       usart_conf.character_size = USART_CHARACTER_SIZE_6BIT;
       break;
-    case 7:
+    case Config_UART_Chr_B7:
       usart_conf.character_size = USART_CHARACTER_SIZE_7BIT;
       break;
-    case 8:
-    default:
+    case Config_UART_Chr_B8:
       usart_conf.character_size = USART_CHARACTER_SIZE_8BIT;
+      break;
+    case Config_UART_Chr_B9:
+      usart_conf.character_size = USART_CHARACTER_SIZE_9BIT;
+      break;
+  }
+  switch (config.parity) {
+    case Config_UART_Parity_NONE:
+      usart_conf.parity = USART_PARITY_NONE;
+      break;
+    case Config_UART_Parity_ODD:
+      usart_conf.parity = USART_PARITY_ODD;
+      break;
+    case Config_UART_Parity_EVEN:
+      usart_conf.parity = USART_PARITY_EVEN;
+      break;
+  }
+  switch (config.stop_bits) {
+    case Config_UART_StopBits_S1:
+      usart_conf.stopbits = USART_STOPBITS_1;
+      break;
+    case Config_UART_StopBits_S2:
+      usart_conf.stopbits = USART_STOPBITS_2;
       break;
   }
 
-  usart_conf.baudrate = LE32_TO_CPU(cfg->dwDTERate);
-  usart_conf.mux_setting = CONF_USART_MUX_SETTING;
-  usart_conf.pinmux_pad0 = CONF_USART_PINMUX_PAD0;
-  usart_conf.pinmux_pad1 = CONF_USART_PINMUX_PAD1;
-  usart_conf.pinmux_pad2 = CONF_USART_PINMUX_PAD2;
-  usart_conf.pinmux_pad3 = CONF_USART_PINMUX_PAD3;
-  usart_disable(&usart_module_edbg);
-  usart_init(&usart_module_edbg, CONF_USART_BASE, &usart_conf);
-  usart_enable(&usart_module_edbg);
-
-  usart_register_callback(&usart_module_edbg, usart_tx_callback,
-      USART_CALLBACK_BUFFER_TRANSMITTED);
-  usart_enable_callback(&usart_module_edbg, USART_CALLBACK_BUFFER_TRANSMITTED);
-  usart_register_callback(&usart_module_edbg, usart_rx_callback,
-      USART_CALLBACK_BUFFER_RECEIVED);
-  usart_enable_callback(&usart_module_edbg, USART_CALLBACK_BUFFER_RECEIVED);
-  usart_read_buffer_job(&usart_module_edbg, &rx_data, 1); 
+  usart_conf.mux_setting = USART_RX_3_TX_2_XCK_3;
+  usart_conf.pinmux_pad0 = PINMUX_UNUSED;
+  usart_conf.pinmux_pad1 = PINMUX_UNUSED;
+  usart_conf.pinmux_pad2 = PINMUX_PA14C_SERCOM2_PAD2;
+  usart_conf.pinmux_pad3 = PINMUX_PA15C_SERCOM2_PAD3;
+  while (usart_init(&usart_module, SERCOM2, &usart_conf) != STATUS_OK) {
+  }
+  usart_enable(&usart_module);
+#endif
 }
 
-void uart_open(uint8_t port)
-{
-  UNUSED(port);
-
-  usart_disable(&usart_module_edbg);
-  usart_init(&usart_module_edbg, CONF_USART_BASE, &usart_conf);
-  usart_enable(&usart_module_edbg);
-
-  usart_register_callback(&usart_module_edbg, usart_tx_callback, USART_CALLBACK_BUFFER_TRANSMITTED);
-  usart_register_callback(&usart_module_edbg, usart_rx_callback, USART_CALLBACK_BUFFER_RECEIVED);
+bool handle_uart_config_cb(pb_istream_t *stream, const pb_field_t *field, void **arg) {
+    l("Configuration for uart...");
+    Config_UART uart;
+    if (!pb_decode(stream, Config_UART_fields, &uart)) {
+      l("Failed to decode a uart configuration");
+    }
+    if (switch_uart(uart.enabled)) {
+      if (uart.enabled) {
+        uart_config(uart);
+      } else {
+#if !SERIAL_DEBUG
+        usart_disable(&usart_module);
+#endif
+        l("usart disabled");
+      }
+    } else {
+      l("UART cannot be enabled/disabled");
+    }
+    return true;
 }
 
-void uart_close(uint8_t port)
-{
-  UNUSED(port);
-  usart_disable(&usart_module_edbg);
-}*/
+bool handle_uart_write_cb(pb_istream_t *stream, const pb_field_t *field, void **arg) {
+  //usart_write_buffer_wait(&usart_module, (const uint8_t *)string, size);
+  return true;
+}
+
+

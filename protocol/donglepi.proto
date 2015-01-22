@@ -38,11 +38,11 @@ message Config {
       BAUD_RATE_115200 = 115200;
     }
     enum Chr {
-      _5 = 5;
-      _6 = 6;
-      _7 = 7;
-      _8 = 8;
-      _9 = 9;
+      B5 = 5;
+      B6 = 6;
+      B7 = 7;
+      B8 = 8;
+      B9 = 9;
     }
     enum Parity {
       NONE = 0;
@@ -50,14 +50,14 @@ message Config {
       EVEN = 2;
     }
     enum StopBits {
-      _1 = 1;
-      _2 = 2;
+      S1 = 1;
+      S2 = 2;
     }
     required bool enabled = 1;
     required Speed speed = 2 [default = BAUD_RATE_115200];
-    required Chr chr = 3 [default = _8];
+    required Chr chr = 3 [default = B8];
     required Parity parity = 4 [default = NONE];
-    required StopBits stop_bits = 5 [default = _1];
+    required StopBits stop_bits = 5 [default = S1];
   }
   optional GPIO gpio = 1; // pins are already callbacks
   optional I2C  i2c = 2 [(nanopb).type = FT_CALLBACK];
