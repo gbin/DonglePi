@@ -73,26 +73,6 @@ void main_sof_action(void)
   // l("Frame number %d", udd_get_frame_number());
 }
 
-#ifdef USB_DEVICE_LPM_SUPPORT
-void main_suspend_lpm_action(void)
-{
-  l("main_suspend_lpm_action");
-  ui_powerdown();
-}
-
-void main_remotewakeup_lpm_disable(void)
-{
-  l("main_remotewakeup_lpm_disable");
-  ui_wakeup_disable();
-}
-
-void main_remotewakeup_lpm_enable(void)
-{
-  l("main_remotewakeup_lpm_enable");
-  ui_wakeup_enable();
-}
-#endif
-
 bool main_cdc_enable(uint8_t port)
 {
   l("main_cdc_enable %d", port);
