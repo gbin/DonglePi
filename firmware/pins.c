@@ -1,6 +1,7 @@
 #include "protocol/donglepi.pb.h"
 #include "pins.h"
 #include "board.h"
+#include "dbg.h"
 
 // RPI GPIO # -> SAMD pin#
 uint8_t pin_map[28] = {
@@ -84,6 +85,12 @@ bool switch_uart(bool on) {
       pin_configs[UART_PIN2].active)) {
       return false;
   }
+#if SERIAL_DEBUG
+  if (on) {
+    l("ERROR: the uart is already used for the serial debug console, rebuild without SERIAL_DEBUG");
+    return false;
+  }
+#endif
   uart_on = on;
   return true;
 }
