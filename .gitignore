@@ -11,3 +11,4 @@ firmware/*.map
 firmware/*.sym
 **/*.pyc
 python/DPi/donglepi_pb2.py
+python/DPi/nanopb_pb2.py
