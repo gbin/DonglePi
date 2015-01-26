@@ -15,15 +15,20 @@ TARGET_SRAM = donglepi_sram.elf
 #			 lz4/lz4.c \
 # List of C source files.
 CSRCS = \
+       sam0/utils/cmsis/samd21/source/gcc/startup_samd21.c \
+       sam0/utils/cmsis/samd21/source/system_samd21.c      \
+       sam0/utils/syscalls/gcc/syscalls.c                  \
        common/services/sleepmgr/samd/sleepmgr.c            \
        common/services/usb/class/cdc/device/udi_cdc.c  \
        common/services/usb/class/cdc/device/udi_cdc_desc.c \
        common/services/usb/udc/udc.c                       \
        common/utils/interrupt/interrupt_sam_nvic.c         \
+       common2/services/delay/sam0/cycle_counter.c      \
        sam0/drivers/extint/extint.c                        \
        sam0/drivers/extint/extint_callback.c               \
        sam0/drivers/port/port.c                            \
        sam0/drivers/sercom/i2c/i2c_samd21_r21_d10_d11/i2c_master.c    \
+       sam0/drivers/sercom/spi/spi.c    \
        sam0/drivers/sercom/usart/usart.c \
        sam0/drivers/sercom/sercom.c    \
        sam0/drivers/system/clock/clock_samd21_r21/clock.c  \
@@ -34,9 +39,6 @@ CSRCS = \
        sam0/drivers/usb/stack_interface/usb_device_udd.c   \
        sam0/drivers/usb/stack_interface/usb_dual.c         \
 			 sam0/drivers/usb/usb.c                              \
-       sam0/utils/cmsis/samd21/source/gcc/startup_samd21.c \
-       sam0/utils/cmsis/samd21/source/system_samd21.c      \
-       sam0/utils/syscalls/gcc/syscalls.c                  \
        nanopb/pb_encode.c																	 \
        nanopb/pb_decode.c																	 \
        nanopb/pb_common.c																	 \
@@ -54,8 +56,11 @@ ASSRCS =
 
 # List of include paths.
 INC_PATH = \
+       sam0/utils                                         \
        sam0/utils/cmsis/samd21/include                    \
        sam0/utils/cmsis/samd21/source                     \
+       sam0/utils/header_files                            \
+       sam0/utils/preprocessor                            \
        sam0/boards                                        \
        sam0/boards/dummy                                  \
        sam0/drivers/extint                                \
@@ -63,6 +68,7 @@ INC_PATH = \
        sam0/drivers/port                                  \
        sam0/drivers/sercom/usart                          \
        sam0/drivers/sercom/i2c                            \
+       sam0/drivers/sercom/spi                            \
        sam0/drivers/system                                \
        sam0/drivers/system/clock                          \
        sam0/drivers/system/clock/clock_samd21_r21         \
@@ -71,9 +77,8 @@ INC_PATH = \
        sam0/drivers/system/pinmux                         \
        sam0/drivers/usb \
        sam0/drivers/usb/stack_interface \
-       sam0/utils                                         \
-       sam0/utils/header_files                            \
-       sam0/utils/preprocessor                            \
+       common2/services/delay                             \
+       common2/services/delay/sam0                        \
        common/boards                                      \
        common/services/sleepmgr                           \
        common/services/usb                                \
@@ -131,7 +136,9 @@ CFLAGS = -I. -Inanopb
 CPPFLAGS = \
        -D ARM_MATH_CM0=true                               \
        -D BOARD=DUMMY_BOARD \
-			 -D USART_CALLBACK_MODE=false \
+			 -D SPI_CALLBACK_MODE=false \
+			 -D CYCLE_MODE \
+       -D USART_CALLBACK_MODE=false \
        -D EXTINT_CALLBACK_MODE=true                       \
 			 -D I2C_MASTER_CALLBACK_MODE=false \
        -D __SAMD21E17A__

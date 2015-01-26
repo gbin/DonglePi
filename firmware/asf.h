@@ -24,9 +24,9 @@
 #include <usb_dual.h>
 #include <usb.h>
 #include <sercom.h>
-// #include <sercom_interrupt.h>
 #include <usart.h>
-// #include <usart_interrupt.h>
+#include <spi.h>
+#include <i2c_master.h>
 
 // From module: SYSTEM - Clock Management for SAMD21
 #include <clock.h>
@@ -48,6 +48,5 @@
 #include <udc.h>
 #include <udd.h>
 
-// i2c stuff
-#include <i2c_master.h>
+#include <cycle_counter.h>
 #endif // ASF_H
