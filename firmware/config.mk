@@ -134,12 +134,13 @@ CFLAGS = -I. -Inanopb
 #   BOARD      Target board in use, see boards/board.h for a list.
 #   EXT_BOARD  Optional extension board in use, see boards/board.h for a list.
 CPPFLAGS = \
-       -D ARM_MATH_CM0=true                               \
+       -D ARM_MATH_CM0=true    \
        -D BOARD=DUMMY_BOARD \
-			 -D SPI_CALLBACK_MODE=false \
+       -D CONFIG_SLEEPMGR_ENABLE \
+       -D SPI_CALLBACK_MODE=false \
 			 -D CYCLE_MODE \
        -D USART_CALLBACK_MODE=false \
-       -D EXTINT_CALLBACK_MODE=true                       \
+       -D EXTINT_CALLBACK_MODE=true  \
 			 -D I2C_MASTER_CALLBACK_MODE=false \
        -D __SAMD21E17A__
 

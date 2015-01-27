@@ -9,7 +9,7 @@ struct usart_module usart_module;
 struct usart_config usart_conf;
 #endif
 
-void l(const char * format, ... ) {
+void l(const char *format, ...) {
 #if SERIAL_DEBUG
   char string[512];
   va_list argptr;
@@ -41,15 +41,8 @@ void log_init() {
 #endif
 }
 
-void on1() {
-  port_pin_set_output_level(DEBUG_LED1, 1);
-}
+void on1() { port_pin_set_output_level(DEBUG_LED1, 1); }
 
-void off1() {
-  port_pin_set_output_level(DEBUG_LED1, 0);
-}
+void off1() { port_pin_set_output_level(DEBUG_LED1, 0); }
 
-bool get_button() {
-  return port_pin_get_input_level(DEBUG_BUTTON);
-}
-
+bool get_button() { return port_pin_get_input_level(DEBUG_BUTTON); }

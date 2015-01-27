@@ -11,7 +11,8 @@
 #include "gpio.h"
 #include "pins.h"
 
-// This main module takes care of initialization, protocol handling and dispatching.
+// This main module takes care of initialization, protocol handling and
+// dispatching.
 
 static volatile bool main_b_cdc_enable = false;
 
@@ -23,9 +24,7 @@ static void setup_led(void) {
   port_pin_set_config(PIN_PA28, &config_port_pin);
 }
 
-
-int main(void)
-{
+int main(void) {
   system_init();
   log_init();
   l("init vectors");
@@ -63,10 +62,8 @@ void main_resume_action(void) {
   ui_wakeup();
 }
 
-void main_sof_action(void)
-{
-  if (!main_b_cdc_enable)
-    return;
+void main_sof_action(void) {
+  if (!main_b_cdc_enable) return;
   // l("Frame number %d", udd_get_frame_number());
 }
 
@@ -77,30 +74,28 @@ uint8_t sbuffer[] = {0, 0, 0};
 
 static void w(uint8_t num, ...) {
   va_list args;
-  va_start (args, num);
-  for ( int x = 0; x < num; x++ )     
-    sbuffer[x] = (uint8_t) va_arg (args, int);
-  va_end ( args );                
-  
- l("Write (%d) %x %x %x", num, sbuffer[0], sbuffer[1], sbuffer[2]);
-  if(spi_write_buffer_wait(&spi_master_instance, sbuffer, num) != STATUS_OK) {
-     l("Error writing");
+  va_start(args, num);
+  for (int x = 0; x < num; x++) sbuffer[x] = (uint8_t)va_arg(args, int);
+  va_end(args);
+
+  l("Write (%d) %x %x %x", num, sbuffer[0], sbuffer[1], sbuffer[2]);
+  if (spi_write_buffer_wait(&spi_master_instance, sbuffer, num) != STATUS_OK) {
+    l("Error writing");
   }
 }
 
-bool main_cdc_enable(uint8_t port)
-{
+bool main_cdc_enable(uint8_t port) {
   l("main_cdc_enable %d", port);
   main_b_cdc_enable = true;
   l("config SPI", port);
-  
+
   // DC mapping
   struct port_config config_port_pin;
   port_get_config_defaults(&config_port_pin);
   config_port_pin.direction = PORT_PIN_DIR_OUTPUT;
-  port_pin_set_config(PIN_PA00, &config_port_pin); // GPIO17 D/C
-  port_pin_set_config(PIN_PA22, &config_port_pin); // GPIO04 RESET
-  
+  port_pin_set_config(PIN_PA00, &config_port_pin);  // GPIO17 D/C
+  port_pin_set_config(PIN_PA22, &config_port_pin);  // GPIO04 RESET
+
   // SPI test
   struct spi_config config_spi_master;
   struct spi_slave_inst_config slave_dev_config;
@@ -120,12 +115,13 @@ bool main_cdc_enable(uint8_t port)
   /* Configure pad 3 for SCK */
   config_spi_master.pinmux_pad3 = PINMUX_PA11C_SERCOM0_PAD3;
 
-  if (spi_init(&spi_master_instance, SERCOM0, &config_spi_master)!=STATUS_OK) {
-    l("SPI init failed");  
+  if (spi_init(&spi_master_instance, SERCOM0, &config_spi_master) !=
+      STATUS_OK) {
+    l("SPI init failed");
   }
-  spi_enable(&spi_master_instance); 
+  spi_enable(&spi_master_instance);
 
-  if(spi_select_slave(&spi_master_instance, &slave, true)!=STATUS_OK) {
+  if (spi_select_slave(&spi_master_instance, &slave, true) != STATUS_OK) {
     l("spi_select_slave error");
   }
   l("reeeeeset");
@@ -137,33 +133,32 @@ bool main_cdc_enable(uint8_t port)
   port_pin_set_output_level(PIN_PA00, 0);
   l("DC in command");
   cpu_delay_s(1);
-  w(1, 0xAE);        // DISPLAY_OFF
-  w(2, 0xD5, 0x80);  // SET_DISPLAY_CLOCK_DIV, 0x80
-  w(2, 0xA8, 0x1F);  // SET_MULTIPLEX, 0x1F
-  w(2, 0xDA, 0x02);  // SET_COM_PINS, 0x02
-  w(2, 0xD3, 0x00);  // SET_DISPLAY_OFFSET, 0x00
-  w(1, 0x40);        // SET_START_LINE | 0x00
-  w(2, 0x8D, 0x14);  // CHARGE_PUMP, 0x14
-  w(2, 0x20, 0x00);  // SET_MEMORY_MODE, 0x00
-  w(1, 0xA0 | 0x01); // SEG_REMAP | 0x01
-  w(1, 0xC8);        // COM_SCAN_DEC
-  w(2, 0x81, 0x8F);  // SET_CONTRAST, 0x8f
-  w(2, 0xD9, 0xF1);  // SET_PRECHARGE, 0xF1
-  w(2, 0xDB, 0x40);  // SET_VCOM_DETECT, 0x40
-  w(1, 0xA4);        // DISPLAY_ALL_ON_RESUME
-  w(1, 0xA6);        // NORMAL_DISPLAY
-  w(1, 0xAF);        // DISPLAY_ON
-  //  Draw 
+  w(1, 0xAE);         // DISPLAY_OFF
+  w(2, 0xD5, 0x80);   // SET_DISPLAY_CLOCK_DIV, 0x80
+  w(2, 0xA8, 0x1F);   // SET_MULTIPLEX, 0x1F
+  w(2, 0xDA, 0x02);   // SET_COM_PINS, 0x02
+  w(2, 0xD3, 0x00);   // SET_DISPLAY_OFFSET, 0x00
+  w(1, 0x40);         // SET_START_LINE | 0x00
+  w(2, 0x8D, 0x14);   // CHARGE_PUMP, 0x14
+  w(2, 0x20, 0x00);   // SET_MEMORY_MODE, 0x00
+  w(1, 0xA0 | 0x01);  // SEG_REMAP | 0x01
+  w(1, 0xC8);         // COM_SCAN_DEC
+  w(2, 0x81, 0x8F);   // SET_CONTRAST, 0x8f
+  w(2, 0xD9, 0xF1);   // SET_PRECHARGE, 0xF1
+  w(2, 0xDB, 0x40);   // SET_VCOM_DETECT, 0x40
+  w(1, 0xA4);         // DISPLAY_ALL_ON_RESUME
+  w(1, 0xA6);         // NORMAL_DISPLAY
+  w(1, 0xAF);         // DISPLAY_ON
+  //  Draw
   w(2, 0x20, 0x01);  // SET_MEMORY_MODE, MEMORY_MODE_VERT
   w(3, 0x22, 0, 0);  // SET_PAGE_ADDRESS, page_start, page_end
   w(3, 0x21, 0, 0);  // SET_COL_ADDRESS, col_start, col_end
   port_pin_set_output_level(PIN_PA00, 1);
   l("DC in data");
   cpu_delay_s(1);
-  w(3, 0xFF, 0xFF, 0xFF); // self.data 
+  w(3, 0xFF, 0xFF, 0xFF);  // self.data
 
-  
-  if(spi_select_slave(&spi_master_instance, &slave, false) != STATUS_OK) {
+  if (spi_select_slave(&spi_master_instance, &slave, false) != STATUS_OK) {
     l("spi_*DE*select_slave error");
   }
 
@@ -171,25 +166,20 @@ bool main_cdc_enable(uint8_t port)
   return true;
 }
 
-void main_cdc_disable(uint8_t port)
-{
+void main_cdc_disable(uint8_t port) {
   l("main_cdc_disable %d", port);
   main_b_cdc_enable = false;
 }
 
-void main_cdc_set_dtr(uint8_t port, bool b_enable) {
-}
+void main_cdc_set_dtr(uint8_t port, bool b_enable) {}
 
-void ui_powerdown(void) {
-}
+void ui_powerdown(void) {}
 
-void ui_init(void) {
-}
+void ui_init(void) {}
 
-void ui_wakeup(void) {
-}
+void ui_wakeup(void) {}
 
-void cdc_config(uint8_t port, usb_cdc_line_coding_t * cfg) {
+void cdc_config(uint8_t port, usb_cdc_line_coding_t* cfg) {
   l("cdc_config [%d]", port);
 }
 
@@ -204,22 +194,22 @@ void cdc_rx_notify(uint8_t port) {
     l("Protocol desync");
   }
   l("First byte ok");
-  uint32_t offset=0;
+  uint32_t offset = 0;
   do {
     buffer[offset++] = b;
     b = udi_cdc_getc();
     l("-> 0x%02x", b);
-  } while(b & 0x80);
+  } while (b & 0x80);
   buffer[offset++] = b;
   // Now we have enough to know the size
   l("Length read, decoding...");
   l("... 0x%02x 0x%02x", buffer[0], buffer[1]);
 
-  pb_istream_t istream = pb_istream_from_buffer(buffer+1, USB_BUFFER_SIZE);
+  pb_istream_t istream = pb_istream_from_buffer(buffer + 1, USB_BUFFER_SIZE);
   l("istream bytes_left before %d", istream.bytes_left);
   uint64_t len = 0;
   pb_decode_varint(&istream, &len);
-  l("message_length %d", (uint32_t) len);
+  l("message_length %d", (uint32_t)len);
   l("offset %d", offset);
   udi_cdc_read_buf(buffer + offset, len);
   l("decode message");
@@ -237,7 +227,7 @@ void cdc_rx_notify(uint8_t port) {
 
   l("Request #%d received", request.message_nb);
 
-  if(request.has_data && request.data.has_gpio) {
+  if (request.has_data && request.data.has_gpio) {
     handle_gpio_write(request.data.gpio);
   }
 
@@ -261,4 +251,3 @@ void cdc_rx_notify(uint8_t port) {
 //LZ4_compress (source, dest, 17);
 //LZ4_decompress_fast(dest, restored, 17);
 */
-

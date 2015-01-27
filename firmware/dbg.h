@@ -7,7 +7,7 @@
 #define SERIAL_DEBUG true
 #endif
 void log_init(void);
-void l(const char * format, ... );
+void l(const char* format, ...);
 void on1(void);
 void off1(void);
 void on2(void);

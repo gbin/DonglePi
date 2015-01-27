@@ -6,24 +6,24 @@
 #include "protocol/donglepi.pb.h"
 
 void handle_gpio_write(Data_GPIO gpio) {
-     l("Data received  mask = %x  values = %x", gpio.mask, gpio.values);
-     for (uint32_t pin = 2; gpio.mask;  pin++) {
-       uint32_t bit = 1 << pin;
-       if (gpio.mask & bit) {
-         gpio.mask ^= bit;
-         bool value = gpio.values & bit;
-         l("Pin GPIO%02d set to %d", pin, value);
-         port_pin_set_output_level(pin_map[pin], value);
-       }
-     }
+  l("Data received  mask = %x  values = %x", gpio.mask, gpio.values);
+  for (uint32_t pin = 2; gpio.mask; pin++) {
+    uint32_t bit = 1 << pin;
+    if (gpio.mask & bit) {
+      gpio.mask ^= bit;
+      bool value = gpio.values & bit;
+      l("Pin GPIO%02d set to %d", pin, value);
+      port_pin_set_output_level(pin_map[pin], value);
+    }
+  }
 }
 
-void handle_gpio_read(DonglePiResponse* response) {
+void handle_gpio_read(DonglePiResponse *response) {
   l("Read input pins");
   uint32_t mask = 0;
   uint32_t values = 0;
-  for(int i = 0; i < 28; i++) {
-    pinconfig_t* pin = get_pin_GPIO_config(i);
+  for (int i = 0; i < 28; i++) {
+    pinconfig_t *pin = get_pin_GPIO_config(i);
     if (pin->active && pin->direction == Config_GPIO_Pin_Direction_IN) {
       l("pin %d active and input", i);
       mask |= 1 << i;
@@ -40,8 +40,8 @@ void handle_gpio_read(DonglePiResponse* response) {
   }
 }
 
-
-bool handle_gpio_pin_config_cb(pb_istream_t *stream, const pb_field_t *field, void **arg) {
+bool handle_gpio_pin_config_cb(pb_istream_t *stream, const pb_field_t *field,
+                               void **arg) {
   l("Received a pin configuration callback");
   Config_GPIO_Pin pin;
   if (!pb_decode(stream, Config_GPIO_Pin_fields, &pin)) {
@@ -51,10 +51,7 @@ bool handle_gpio_pin_config_cb(pb_istream_t *stream, const pb_field_t *field, vo
   l("Pin number %d", pin.number);
   l("Pin direction %d", pin.direction);
 
-  pinconfig_t config = {pin.active,
-                        pin.direction,
-                        pin.pull,
-                        pin.trigger};
+  pinconfig_t config = {pin.active, pin.direction, pin.pull, pin.trigger};
   if (!set_pin_GPIO_config(pin.number, config)) {
     l("Error switching pin %d", pin.number);
     return false;
@@ -84,4 +81,3 @@ bool handle_gpio_pin_config_cb(pb_istream_t *stream, const pb_field_t *field, vo
   port_pin_set_config(pin_map[pin.number], &config_port_pin);
   return true;
 }
-

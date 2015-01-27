@@ -41,6 +41,6 @@ void cdc_rx_notify(uint8_t port);
  *
  * \param cfg      line configuration
  */
-void cdc_config(uint8_t port, usb_cdc_line_coding_t * cfg);
+void cdc_config(uint8_t port, usb_cdc_line_coding_t* cfg);
 
 #endif

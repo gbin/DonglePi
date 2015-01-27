@@ -44,8 +44,8 @@ static void uart_config(Config_UART config) {
   switch (config.speed) {
     case Config_UART_Speed_BAUD_RATE_115200:
       usart_conf.baudrate = 115200;
-    break;
-    // TODO: other speeds
+      break;
+      // TODO: other speeds
   }
   switch (config.chr) {
     case Config_UART_Chr_B5:
@@ -95,30 +95,30 @@ static void uart_config(Config_UART config) {
 #endif
 }
 
-bool handle_uart_config_cb(pb_istream_t *stream, const pb_field_t *field, void **arg) {
-    l("Configuration for uart...");
-    Config_UART uart;
-    if (!pb_decode(stream, Config_UART_fields, &uart)) {
-      l("Failed to decode a uart configuration");
-    }
-    if (switch_uart(uart.enabled)) {
-      if (uart.enabled) {
-        uart_config(uart);
-      } else {
-#if !SERIAL_DEBUG
-        usart_disable(&usart_module);
-#endif
-        l("usart disabled");
-      }
+bool handle_uart_config_cb(pb_istream_t *stream, const pb_field_t *field,
+                           void **arg) {
+  l("Configuration for uart...");
+  Config_UART uart;
+  if (!pb_decode(stream, Config_UART_fields, &uart)) {
+    l("Failed to decode a uart configuration");
+  }
+  if (switch_uart(uart.enabled)) {
+    if (uart.enabled) {
+      uart_config(uart);
     } else {
-      l("UART cannot be enabled/disabled");
+#if !SERIAL_DEBUG
+      usart_disable(&usart_module);
+#endif
+      l("usart disabled");
     }
-    return true;
-}
-
-bool handle_uart_write_cb(pb_istream_t *stream, const pb_field_t *field, void **arg) {
-  //usart_write_buffer_wait(&usart_module, (const uint8_t *)string, size);
+  } else {
+    l("UART cannot be enabled/disabled");
+  }
   return true;
 }
 
-
+bool handle_uart_write_cb(pb_istream_t *stream, const pb_field_t *field,
+                          void **arg) {
+  // usart_write_buffer_wait(&usart_module, (const uint8_t *)string, size);
+  return true;
+}

@@ -49,4 +49,4 @@
 #include <udd.h>
 
 #include <cycle_counter.h>
-#endif // ASF_H
+#endif  // ASF_H
