@@ -287,8 +287,7 @@ cflags-gnu-y += -Wshadow -Wbad-function-cast -Wwrite-strings
 cflags-gnu-y += -Wsign-compare -Waggregate-return
 cflags-gnu-y += -Wmissing-declarations
 cflags-gnu-y += -Wformat -Wmissing-format-attribute -Wno-deprecated-declarations
-# cflags-gnu-y += -Wpacked -Wredundant-decls -Wnested-externs -Wlong-long
-cflags-gnu-y += -Wpacked -Wredundant-decls -Wnested-externs # gbin: -Wlong-long
+cflags-gnu-y += -Wpacked -Wredundant-decls -Wnested-externs -Wlong-long
 cflags-gnu-y += -Wunreachable-code
 cflags-gnu-y += -Wcast-align
 cflags-gnu-y += --param max-inline-insns-single=500
@@ -501,3 +500,5 @@ cleandoc:
 # Rebuild the Doxygen generated documentation.
 .PHONY: rebuilddoc
 rebuilddoc: cleandoc doc
+
+print-%  : ; @echo $* = $($*)

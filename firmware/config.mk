@@ -23,11 +23,11 @@ CSRCS = \
        common/services/usb/class/cdc/device/udi_cdc_desc.c \
        common/services/usb/udc/udc.c                       \
        common/utils/interrupt/interrupt_sam_nvic.c         \
-       common2/services/delay/sam0/cycle_counter.c      \
-       sam0/drivers/extint/extint.c                        \
+       common2/services/delay/sam0/cycle_counter.c         \
+       sam0/drivers/extint/extint_sam_d_r/extint.c         \
        sam0/drivers/extint/extint_callback.c               \
        sam0/drivers/port/port.c                            \
-       sam0/drivers/sercom/i2c/i2c_samd21_r21_d10_d11/i2c_master.c    \
+       sam0/drivers/sercom/i2c/i2c_samd21_r21_d10_d11_l21/i2c_master.c \
        sam0/drivers/sercom/spi/spi.c    \
        sam0/drivers/sercom/usart/usart.c \
        sam0/drivers/sercom/sercom.c    \
@@ -38,7 +38,7 @@ CSRCS = \
        sam0/drivers/system/system.c                        \
        sam0/drivers/usb/stack_interface/usb_device_udd.c   \
        sam0/drivers/usb/stack_interface/usb_dual.c         \
-			 sam0/drivers/usb/usb.c                              \
+			 sam0/drivers/usb/usb_sam_d_r/usb.c                              \
        nanopb/pb_encode.c																	 \
        nanopb/pb_decode.c																	 \
        nanopb/pb_common.c																	 \
@@ -66,7 +66,9 @@ INC_PATH = \
        sam0/drivers/extint                                \
        sam0/drivers/sercom                                \
        sam0/drivers/port                                  \
-       sam0/drivers/sercom/usart                          \
+       sam0/drivers/system/power/power_sam_d_r            \
+			 sam0/drivers/system/reset/reset_sam_d_r            \
+       sam0/drivers/sercom/usart                           \
        sam0/drivers/sercom/i2c                            \
        sam0/drivers/sercom/spi                            \
        sam0/drivers/system                                \
@@ -87,7 +89,7 @@ INC_PATH = \
        common/services/usb/udc                            \
        common/utils                                       \
        thirdparty/CMSIS/Include                           \
-       thirdparty/CMSIS/Lib/GCC                           
+       thirdparty/CMSIS/Lib/GCC
 
 
 # Additional search paths for libraries.
@@ -97,8 +99,8 @@ LIB_PATH = thirdparty/CMSIS/Lib/GCC
 LIBS = arm_cortexM0l_math
 
 # Path relative to top level directory pointing to a linker script.
-LINKER_SCRIPT_FLASH = sam0/utils/linker_scripts/samd21/gcc/samd21j18a_flash.ld
-LINKER_SCRIPT_SRAM  = sam0/utils/linker_scripts/samd21/gcc/samd21j18a_sram.ld
+LINKER_SCRIPT_FLASH = sam0/utils/linker_scripts/samd21/gcc/samd21e17a_flash.ld
+LINKER_SCRIPT_SRAM  = sam0/utils/linker_scripts/samd21/gcc/samd21e17a_sram.ld
 
 # Path relative to top level directory pointing to a linker script.
 DEBUG_SCRIPT_FLASH = sam0/boards/samd21_xplained_pro/debug_scripts/gcc/samd21_xplained_pro_flash.gdb
@@ -122,7 +124,7 @@ ARFLAGS =
 ASFLAGS =
 
 # Extra flags to use when compiling.
-CFLAGS = -I. -Inanopb 
+CFLAGS = -I. -Inanopb
 #
 # Extra flags to use when preprocessing.
 #
