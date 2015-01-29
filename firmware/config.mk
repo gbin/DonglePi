@@ -1,5 +1,5 @@
 # Path to top level ASF directory relative to this project directory.
-PRJ_PATH = ../xdk
+PRJ_PATH = ../asf
 
 # Target CPU architecture: cortex-m3, cortex-m4
 ARCH = cortex-m0plus
