@@ -33,6 +33,11 @@ message Config {
     required bool enabled = 1;
     optional Speed speed = 2 [default = BAUD_RATE_100KHZ];
   }
+
+  message SPI {
+    required bool enabled = 1;
+  }
+
   message UART {
     enum Speed {
       BAUD_RATE_115200 = 115200;

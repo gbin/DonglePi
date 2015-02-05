@@ -7,6 +7,7 @@ struct spi_module spi_master_instance;
 struct spi_slave_inst slave;
 
 static void w(uint8_t num, ...) {
+  static uint8_t sbuffer[5];
   va_list args;
   va_start(args, num);
   for (int x = 0; x < num; x++) sbuffer[x] = (uint8_t)va_arg(args, int);
@@ -101,7 +102,7 @@ static bool handle_spi_write_data_cb(pb_istream_t *stream,
 }
 
 
-bool handle_i2c_write_cb(pb_istream_t *stream, const pb_field_t *field,
+bool handle_spi_write_cb(pb_istream_t *stream, const pb_field_t *field,
                          void **arg) {
   return true;
 }

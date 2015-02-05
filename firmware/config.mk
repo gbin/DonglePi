@@ -47,6 +47,7 @@ CSRCS = \
 			 pins.c\
 			 dbg.c\
 			 i2c.c\
+			 spi.c\
 			 gpio.c\
 			 uart.c
 
