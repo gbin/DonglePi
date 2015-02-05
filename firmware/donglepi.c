@@ -25,14 +25,11 @@ static void setup_led(void) {
 }
 
 int main(void) {
+  irq_initialize_vectors();
+  cpu_irq_enable();
+  sleepmgr_init();
   system_init();
   log_init();
-  l("init vectors");
-  irq_initialize_vectors();
-  l("irq enable");
-  cpu_irq_enable();
-  l("sleep mgr start");
-  sleepmgr_init();
   l("configure_pins");
   setup_led();
   l("ui_init");
