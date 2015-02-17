@@ -26,7 +26,9 @@ response_lock = threading.Lock()
 
 def find_donglepi():
   try:
-     return next(list_ports.grep("DonglePI"))[0]
+     # TODO(gbin): fix me it broke, dunno why
+     return '/dev/ttyACM0'
+     # return next(list_ports.grep("DonglePI"))[0]
   except StopIteration:
      return None
 
