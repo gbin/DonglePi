@@ -25,19 +25,22 @@ static void spi_config(Config_SPI psi_proto_config) {
   struct spi_slave_inst_config slave_dev_config;
   /* Configure and initialize software device instance of peripheral slave */
   spi_slave_inst_get_config_defaults(&slave_dev_config);
-  slave_dev_config.ss_pin = PIN_PA10;
+  slave_dev_config.ss_pin = PIN_PA09;
   spi_attach_slave(&slave, &slave_dev_config);
+
   /* Configure, initialize and enable SERCOM SPI module */
   spi_get_config_defaults(&config_spi_master);
-  config_spi_master.mux_setting = SPI_SIGNAL_MUX_SETTING_N;
-  /* Configure pad 0 for MOSI */
+  config_spi_master.mux_setting = SPI_SIGNAL_MUX_SETTING_E;
+  /* Configure pad 0 for MISO */
   config_spi_master.pinmux_pad0 = PINMUX_PA08C_SERCOM0_PAD0;
-  /* Configure pad 1 for MISO */
-  config_spi_master.pinmux_pad1 = PINMUX_PA09C_SERCOM0_PAD1;
-  /* Configure pad 2 for CS so GPIO */
-  config_spi_master.pinmux_pad2 = PINMUX_UNUSED;
+  /* Configure pad 1 for CS */
+  config_spi_master.pinmux_pad1 = PINMUX_UNUSED;
+  /* Configure pad 2 for MOSI */
+  config_spi_master.pinmux_pad2 = PINMUX_PA10C_SERCOM0_PAD2;
   /* Configure pad 3 for SCK */
   config_spi_master.pinmux_pad3 = PINMUX_PA11C_SERCOM0_PAD3;
+
+  l("SPI set to baudrate %d", config_spi_master.mode_specific.master.baudrate);
 
   if (spi_init(&spi_master_instance, SERCOM0, &config_spi_master) !=
       STATUS_OK) {
@@ -52,13 +55,14 @@ static void spi_config(Config_SPI psi_proto_config) {
   // TODO just a test push that correctly in write
   l("reeeeeset");
   port_pin_set_output_level(PIN_PA22, 0);
-  cpu_delay_s(5);
+  cpu_delay_s(1);
   l("done");
   port_pin_set_output_level(PIN_PA22, 1);
 
   port_pin_set_output_level(PIN_PA00, 0);
   l("DC in command");
   cpu_delay_s(1);
+  l("Write stuff to SPI");
   w(1, 0xAE);         // DISPLAY_OFF
   w(2, 0xD5, 0x80);   // SET_DISPLAY_CLOCK_DIV, 0x80
   w(2, 0xA8, 0x1F);   // SET_MULTIPLEX, 0x1F
@@ -79,6 +83,7 @@ static void spi_config(Config_SPI psi_proto_config) {
   w(2, 0x20, 0x01);  // SET_MEMORY_MODE, MEMORY_MODE_VERT
   w(3, 0x22, 0, 0);  // SET_PAGE_ADDRESS, page_start, page_end
   w(3, 0x21, 0, 0);  // SET_COL_ADDRESS, col_start, col_end
+  l("Done Writing stuff to SPI");
   port_pin_set_output_level(PIN_PA00, 1);
   l("DC in data");
   cpu_delay_s(1);
@@ -93,7 +98,25 @@ static void spi_config(Config_SPI psi_proto_config) {
 
 
 bool handle_spi_config_cb(pb_istream_t *stream, const pb_field_t *field,
-                          void **arg) {
+    void **arg) {
+  l("Configuration for spi...");
+  Config_SPI spi;
+  if (!pb_decode(stream, Config_SPI_fields, &spi)) {
+    l("Failed to decode a SPI configuration");
+  }
+
+  if (switch_spi(spi.enabled)) {
+    if (spi.enabled) {
+      spi_config(spi);
+      l("SPI enabled");
+    } else {
+      spi_disable(&spi_master_instance);
+      l("SPI disabled");
+    }
+  } else {
+    l("SPI cannot be enabled/disabled");
+  }
+  return true;
 }
 
 static bool handle_spi_write_data_cb(pb_istream_t *stream,

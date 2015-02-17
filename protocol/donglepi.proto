@@ -67,7 +67,7 @@ message Config {
   optional GPIO gpio = 1; // pins are already callbacks
   optional I2C  i2c = 2 [(nanopb).type = FT_CALLBACK];
   optional UART uart = 3 [(nanopb).type = FT_CALLBACK];
-  optional bool spi_on = 4 [(nanopb).type = FT_CALLBACK];
+  optional SPI spi = 4 [(nanopb).type = FT_CALLBACK];
 }
 
 

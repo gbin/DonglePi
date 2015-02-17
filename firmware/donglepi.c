@@ -9,6 +9,7 @@
 #include "dbg.h"
 #include "i2c.h"
 #include "gpio.h"
+#include "spi.h"
 #include "pins.h"
 
 // This main module takes care of initialization, protocol handling and
@@ -69,7 +70,6 @@ uint8_t sbuffer[] = {0, 0, 0};
 bool main_cdc_enable(uint8_t port) {
   l("main_cdc_enable %d", port);
   main_b_cdc_enable = true;
-  l("config SPI", port);
 
   // DC mapping
   struct port_config config_port_pin;
@@ -132,6 +132,7 @@ void cdc_rx_notify(uint8_t port) {
   DonglePiRequest request = {0};
   request.config.i2c.funcs.decode = handle_i2c_config_cb;
   request.config.uart.funcs.decode = handle_uart_config_cb;
+  request.config.spi.funcs.decode = handle_spi_config_cb;
   request.config.gpio.pins.funcs.decode = handle_gpio_pin_config_cb;
   request.data.i2c.writes.funcs.decode = handle_i2c_write_cb;
 
