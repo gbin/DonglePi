@@ -1,6 +1,7 @@
 from DPi import GPIO
 from DPi import smbus
 import time
+import DPi
 
 def rotl(num, bits):
     bit = num & (1 << (bits-1))
@@ -8,18 +9,26 @@ def rotl(num, bits):
     if(bit):
         num |= 1
     num &= (2**bits-1)
- 
     return num
 
 LED_DEV = 0x70
 print("setup...")
 GPIO.setmode(GPIO.BOARD)
+DPi.pending_request.config.spi.enabled = True
+time.sleep(90000)  # <----
+
+
+
+
+
+
+
+
 i2c = smbus.SMBus(0)
 i2c.write_byte(LED_DEV, 0x21) # oscillator on
 i2c.write_byte(LED_DEV, 0x81) # switch on with no blink
 i2c.write_byte(LED_DEV, 0xEF) # brightness
 print("write on display done.")
-
 #GPIO.setup(25, GPIO.OUT)
 #GPIO.setup(22, GPIO.IN, GPIO.PUD_UP)
 pattern = [0] * 16
