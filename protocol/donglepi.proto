@@ -36,6 +36,10 @@ message Config {
 
   message SPI {
     required bool enabled = 1;
+    optional uint32 baudrate = 2 [default = 100000];
+    optional bool CPOL = 3 [default = false]; // Clock polarity leading: 0=rising, 1=falling trailing: 0=falling 1=rising
+    optional bool CPHA = 4 [default = false]; // Clock phase  leading: 0=Sample 1=setup trailing: 0=setup 1=sample
+    optional bool CS_LEVEL = 5 [default = false]; // false : low to select
   }
 
   message UART {
@@ -88,11 +92,23 @@ message Data {
     repeated Read reads = 1;
     repeated Write writes = 2;
   }
+  message SPI {
+    message Read {
+      required uint32 device_number = 1; // 0 or 1 for now
+      required uint32 size;
+    }
+    message Write {
+      required uint32 device_number = 1; // 0 or 1 for now
+      required bytes buffer = 2;
+    }
+    repeated Read reads = 1;
+    repeated Write writes = 2; // TODO: repeat Data instead so the dev can interleave requests
+  }
   optional GPIO gpio = 1;
   optional GPIO triggers = 2;
   optional I2C i2c = 3;
+  optional SPI spi = 4;
   optional bytes uart = 5;
-  optional bytes spi = 6;
 }
 
 message Transport {
