@@ -1,5 +1,7 @@
 # DonglePi
 
+![pcb](http://gbin.github.io/DonglePi/pcb.png)
+
 DonglePi is a device that gives you a Raspberry Pi P1 compatible connector for your PC.
 
 P1 is a connector with:
@@ -20,6 +22,7 @@ It can be plugged to any USB2 port.
 You can build a prototype on a breadboard using an Atmel SAMD21 development board.
 I recommend [this one](http://www.ebay.com/itm/131296219501?_trksid=p2060778.m2749.l2649&var=430589049056&ssPageName=STRK%3AMEBIDX%3AIT)
 
+![breadboard](http://gbin.github.io/DonglePi/images/breadboard.jpg)
 
 ## Software
 
