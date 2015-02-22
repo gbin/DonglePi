@@ -1,4 +1,3 @@
-# DonglePi
 
 ![pcb](http://gbin.github.io/DonglePi/images/pcb.png)
 
@@ -15,12 +14,25 @@ More info [about the connector](http://elinux.org/RPi_Low-level_peripherals)
 
 On the software side, it exposes APIs that are compatible with the ones used by the raspberry pi like [GPIO](https://pypi.python.org/pypi/RPi.GPIO/) and [smbus](http://www.raspberry-projects.com/pi/programming-in-python/i2c-programming-in-python/using-the-i2c-interface-2) under python.
 
+## Current Status
+
+It is a prototype working on a breadboard.
+The goal is to make a PCB like the one above.
+
+On the software side:
+GPIOs are working.
+I2C is working.
+SPI is almost done.
+PWM needs to be done.
+
 ## Hardware
 
 It can be plugged to any USB2 port.
 
 You can build a prototype on a breadboard using an Atmel SAMD21 development board.
 I recommend [this one](http://www.ebay.com/itm/131296219501?_trksid=p2060778.m2749.l2649&var=430589049056&ssPageName=STRK%3AMEBIDX%3AIT)
+
+For the RPi connector, you can use a [Pi cobbler kit](https://learn.adafruit.com/adafruit-pi-cobbler-kit/overview) from adafruit.
 
 ![breadboard](http://gbin.github.io/DonglePi/images/breadboard.jpg)
 
@@ -74,4 +86,12 @@ From the python directory:
 This should generate some files from tht protobuf so the bindings could talk to the hardware.
 
 Here you have a test.py showing how to use the bindings.
+
+## Help Wanted !
+
+Any contribution is welcomed !
+If you want to contribute some code, feel free to open a pull request.
+If you have some experience producing PCB, feel free to contribute to the Eagle project.
+
+
 
