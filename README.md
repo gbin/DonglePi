@@ -11,7 +11,7 @@ P1 is a connector with:
 
 More info [about the connector](http://elinux.org/RPi_Low-level_peripherals)
 
-On the software side, it exposes APIs that are compatible with the one used by the raspberry pi like [GPIO](https://pypi.python.org/pypi/RPi.GPIO/) and [smbus](http://www.raspberry-projects.com/pi/programming-in-python/i2c-programming-in-python/using-the-i2c-interface-2) under python.
+On the software side, it exposes APIs that are compatible with the ones used by the raspberry pi like [GPIO](https://pypi.python.org/pypi/RPi.GPIO/) and [smbus](http://www.raspberry-projects.com/pi/programming-in-python/i2c-programming-in-python/using-the-i2c-interface-2) under python.
 
 ## Hardware
 
