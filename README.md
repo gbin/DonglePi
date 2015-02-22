@@ -1,6 +1,6 @@
 # DonglePi
 
-![pcb](http://gbin.github.io/DonglePi/pcb.png)
+![pcb](http://gbin.github.io/DonglePi/images/pcb.png)
 
 DonglePi is a device that gives you a Raspberry Pi P1 compatible connector for your PC.
 
