@@ -22,6 +22,8 @@ With DonglePi:
 
 DonglePi can also be used to easily setup students for an embedded development course in a preexisting computer lab.
 
+The fidelity with the original hardware won't be 100% but it doesn't need to be to be useful.
+
 ## Current Status
 
 It is a prototype working on a breadboard.
