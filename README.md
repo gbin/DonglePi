@@ -77,7 +77,8 @@ Install pyserial:
 
 ### Building the firmware
 
-From the firmware:
+From firmware/:
+
     make
 
 It will produce a flash.bin file.
@@ -92,7 +93,8 @@ Reset it, the led should switch to solid red = it has correctly initialized and 
 
 ### Building the client side support.
 
-From the python directory:
+From python/:
+
     make
 
 This should generate some files from tht protobuf so the bindings could talk to the hardware.
