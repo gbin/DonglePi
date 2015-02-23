@@ -40,7 +40,7 @@ On the software side:
 It can be plugged on any USB2 port.
 
 You can build a prototype on a breadboard using an Atmel SAMD21 development board.
-I recommend [this one](http://www.ebay.com/itm/131296219501?_trksid=p2060778.m2749.l2649&var=430589049056&ssPageName=STRK%3AMEBIDX%3AIT)
+I recommend [this one](http://www.ebay.com/itm/131296219501?_trksid=p2060778.m2749.l2649&var=430589049056&ssPageName=STRK%3AMEBIDX%3AIT). Be sure to take the one with the bootloader if you are not comfortable playing with an Arm/JTAG probe.
 
 For the RPi connector, you can use a [Pi cobbler kit](https://learn.adafruit.com/adafruit-pi-cobbler-kit/overview) from adafruit.
 
