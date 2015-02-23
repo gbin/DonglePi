@@ -53,28 +53,28 @@ It needs to be linked to the asf directory in the root of the project (by defaul
 
 Sync the submodule:
 
-  git submodule update --init firmware/nanopb
+    git submodule update --init firmware/nanopb
 
 Install google protobuf:
 
-  pip install -user protobuf
-  #(or under arch for example)
-  sudo pacman -S protobuf python2-protobuf
+    pip install -user protobuf
+    #(or under arch for example)
+    sudo pacman -S protobuf python2-protobuf
 
 Install gcc for arm bare metal:
 
-  # (under arch)
-  sudo pacman -S arm-none-eabi-gcc
-  # Otherwise you can always get the binaries there:
-  https://launchpad.net/gcc-arm-embedded/+download
+    # (under arch)
+    sudo pacman -S arm-none-eabi-gcc
+    # Otherwise you can always get the binaries there:
+    https://launchpad.net/gcc-arm-embedded/+download
 
 Install pyserial:
-  pip install pyserial
+    pip install pyserial
 
 ### Building the firmware
 
 From the firmware:
-  make
+    make
 
 It will produce a flash.bin file.
 
@@ -89,7 +89,7 @@ Reset it, the led should switch to solid red = it has correctly initialized and 
 ### Building the client side support.
 
 From the python directory:
-  make
+    make
 
 This should generate some files from tht protobuf so the bindings could talk to the hardware.
 
@@ -97,7 +97,7 @@ Here you have a test.py showing how to use the bindings.
 
 ## Help Wanted !
 
-Any contribution is welcomed !
+Any contribution or contributor is welcomed !
 If you want to contribute some code, feel free to open a pull request.
 If you have some experience developing PCBs, feel free to contribute to the Eagle project.
 
