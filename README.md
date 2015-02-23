@@ -46,8 +46,7 @@ For the RPi connector, you can use a [Pi cobbler kit](https://learn.adafruit.com
 
 ![breadboard](http://gbin.github.io/DonglePi/images/breadboard.jpg)
 
-This is a demo of it driving an i2c device.
-![i2c](http://gbin.github.io/DonglePi/video/i2c_demo.mp4)
+You can find [here](http://gbin.github.io/DonglePi/video/i2c_demo.mp4) a little demo of it driving an i2c device.
 
 ## Software
 
