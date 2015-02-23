@@ -73,6 +73,7 @@ Install gcc for arm bare metal:
     https://launchpad.net/gcc-arm-embedded/+download
 
 Install pyserial:
+
     pip install pyserial
 
 ### Building the firmware
