@@ -18,7 +18,7 @@ On the software side, it exposes APIs that are compatible with the ones you can 
 
 With DonglePi:
 - you can use your familiar PC or Mac to directly develop & debug your RPi embedded applications (with an IDE for example)
-- you can use devices made for the Raspberry Pi ecosystem on your PC
+- you can use peripherals made for the Raspberry Pi ecosystem on your PC. You can find a list of those [here](http://elinux.org/RPi_VerifiedPeripherals).
 
 DonglePi can also be used to easily setup students for an embedded development course in a preexisting computer lab.
 
