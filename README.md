@@ -34,6 +34,7 @@ On the software side:
 - I2C is working.
 - SPI is in progress.
 - PWM needs to be done.
+- Serial is currently used for debug but should be easy after all that :).
 
 ## Hardware
 
