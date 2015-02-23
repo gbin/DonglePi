@@ -3,21 +3,21 @@
 
 DonglePi is a device that gives you a Raspberry Pi P1 compatible connector for your PC.
 
-P1 is a connector with:
+The RPi P1 is a defacto standard connector on all models with pins for:
 - GPIO
 - I2C
 - SPI
 - Serial
 - PWM
 
-More info [about the connector](http://elinux.org/RPi_Low-level_peripherals)
+[More info about it.](http://elinux.org/RPi_Low-level_peripherals)
 
-On the software side, it exposes APIs that are compatible with the ones used by the raspberry pi like [GPIO](https://pypi.python.org/pypi/RPi.GPIO/) and [smbus](http://www.raspberry-projects.com/pi/programming-in-python/i2c-programming-in-python/using-the-i2c-interface-2) under python.
+On the software side, it exposes APIs that are compatible with the ones you can use on the Raspberry Pi like [GPIO](https://pypi.python.org/pypi/RPi.GPIO/) and [smbus](http://www.raspberry-projects.com/pi/programming-in-python/i2c-programming-in-python/using-the-i2c-interface-2) under python.
 
 ## Why ?
 
 With DonglePi:
-- you can use your PC or Mac to directly develop & debug your RPi embedded applications (with an IDE for example)
+- you can use your familiar PC or Mac to directly develop & debug your RPi embedded applications (with an IDE for example)
 - you can use devices made for the Raspberry Pi ecosystem on your PC
 
 DonglePi can also be used to easily setup students for an embedded development course in a preexisting computer lab.
