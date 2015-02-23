@@ -97,6 +97,10 @@ This should generate some files from tht protobuf so the bindings could talk to 
 
 Here you have a test.py showing how to use the bindings.
 
+### Debug logs.
+
+For the moment, I have dedicated the serial output to that, you can connect it for example to a real RPi at 115200 BPS and use minicom to see the debug logs.
+
 ## Help Wanted !
 
 Any contribution or contributor is welcomed !
