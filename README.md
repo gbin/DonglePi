@@ -32,7 +32,7 @@ The goal is to make a PCB like the one above.
 On the software side:
 - GPIOs are working.
 - I2C is working.
-- SPI is almost done.
+- SPI is in progress.
 - PWM needs to be done.
 
 ## Hardware
