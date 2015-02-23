@@ -1,0 +1,9 @@
+General
+-------
+DonglePi General.pdf :  General presentation of the project.
+DonglePi Features.pdf : List of projected features.
+
+
+Technical
+---------
+Mapping RPi J8 header -- D21E.ods : The pin mapping between the SAMD21 and the connector.
