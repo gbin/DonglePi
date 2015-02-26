@@ -115,6 +115,6 @@ If you have some experience developing PCBs, feel free to contribute to the Eagl
 
 ## And the license ?
 
-TBD. 
-Contact me if you are interested to produce it: gbin@gootz.net
+This is under CC-NY-NC 4.0 (see LICENSE.md).  
+If this license doesn't fit your need: feel free to contact me at gbin@gootz.net.
 
