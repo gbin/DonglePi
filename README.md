@@ -115,9 +115,6 @@ If you have some experience developing PCBs, feel free to contribute to the Eagl
 
 ## And the license ?
 
-DonglePi is released under a dual license.
-It is GPL for educational and personal use.
-
-It is under a commercial license if you want to produce it and sell it. The money would be reused to develop the v2 of the product under the same dual license.
+TBD. 
 Contact me if you are interested to produce it: gbin@gootz.net
 
